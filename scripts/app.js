@@ -3,7 +3,7 @@
   // Supabase Config
   // =============================
   const SUPABASE_URL = "https://icqjefaxvuaxmlgyusgc.supabase.co";
-  const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzdnVheG1sZ3l1c2djIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTUxMjAyODAsImV4cCI6MjA3MDY5NjI4MH0.prPCfB2CryD7dOb9LeRxU6obsCVXCTYTmTUMuWi97jg";
+  const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImljcWplZmF4dnVheG1sZ3l1c2djIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTUxMjAyODAsImV4cCI6MjA3MDY5NjI4MH0.prPCfB2CryD7dOb9LeRxU6obsCVXCTYTmTUMuWi97jg";
   const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
   // =============================
@@ -11,7 +11,10 @@
   // =============================
   async function getAll() {
     const { data, error } = await supabase.from("lizards").select("*").order("name");
-    if (error) { console.error("Error fetching lizards:", error); return []; }
+    if (error) {
+      console.error("Error fetching lizards:", error);
+      return [];
+    }
     return data;
   }
 
@@ -93,20 +96,16 @@
     const btn = document.getElementById("btnAdd");
     if (!btn) return;
 
-    const allowedCategories = ["Gecko", "Lizard", "Skink"];
-
     btn.addEventListener("click", async () => {
       const nm = document.getElementById("name").value.trim();
       if (!nm) { alert("Name required"); return; }
 
       const sci = document.getElementById("sci").value.trim();
-      let cat = document.getElementById("cat").value.trim();
 
-      // Only allow Gecko, Lizard, or Skink
-      if (!allowedCategories.includes(cat)) {
-        alert("Category must be: Gecko, Lizard, or Skink");
-        return;
-      }
+      // Force category to one of the three options
+      let cat = document.getElementById("cat").value.trim();
+      const validCats = ["Gecko", "Lizard", "Skink"];
+      if (!validCats.includes(cat)) cat = "Lizard"; // default
 
       const price = parseFloat(document.getElementById("price").value) || 0;
       const stock = parseInt(document.getElementById("stock").value) || 0;
@@ -116,54 +115,52 @@
 
       await addLizard({ id, name: nm, scientific: sci, category: cat, price, stock, image: img, desc });
       await repaintAdminTable();
-
       ["name","sci","cat","price","stock","img","desc"].forEach(id => document.getElementById(id).value = "");
     });
   }
 
   // =============================
-// Google Login & Session
-// =============================
-async function loginWithGoogle() {
-  const { error } = await supabase.auth.signInWithOAuth({
-    provider: "google",
-    options: { redirectTo: window.location.origin + "/admin.html" }
-  });
-  if (error) console.error("Login error:", error.message);
-}
-
-// Handles showing/hiding the admin panel after login
-async function checkSession() {
-  const loginSection = document.getElementById("login-section");
-  const adminBody = document.getElementById("adm-body");
-  const logoutBtn = document.getElementById("btn-logout");
-  const status = document.getElementById("adm-status");
-
-  const { data: { session } } = await supabase.auth.getSession();
-
-  if (session && session.user.email === "fileppcat@gmail.com") {
-    loginSection.style.display = "none";
-    adminBody.style.display = "block";
-    logoutBtn.style.display = "inline-flex";
-    status.textContent = "";
-    repaintAdminTable();
-  } else {
-    loginSection.style.display = "block";
-    adminBody.style.display = "none";
-    logoutBtn.style.display = "none";
-    if (session) status.textContent = "Unauthorized user";
+  // Google Login & Session
+  // =============================
+  async function loginWithGoogle() {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: { redirectTo: window.location.origin + "/admin.html" }
+    });
+    if (error) console.error("Login error:", error.message);
   }
-}
 
-// Listen for real-time auth state changes
-supabase.auth.onAuthStateChange((_event, session) => {
-  checkSession();
-});
+  async function checkSession() {
+    const loginSection = document.getElementById("login-section");
+    const adminBody = document.getElementById("adm-body");
+    const logoutBtn = document.getElementById("btn-logout");
+    const status = document.getElementById("adm-status");
 
-async function logout() {
-  await supabase.auth.signOut();
-  checkSession();
-}
+    const { data: { session } } = await supabase.auth.getSession();
+
+    if (session && session.user.email === "fileppcat@gmail.com") {
+      loginSection.style.display = "none";
+      adminBody.style.display = "block";
+      logoutBtn.style.display = "inline-flex";
+      status.textContent = "";
+      repaintAdminTable();
+    } else {
+      loginSection.style.display = "block";
+      adminBody.style.display = "none";
+      logoutBtn.style.display = "none";
+      if (session) status.textContent = "Unauthorized user";
+    }
+  }
+
+  // Listen for auth changes (after redirect)
+  supabase.auth.onAuthStateChange((_event, session) => {
+    checkSession();
+  });
+
+  async function logout() {
+    await supabase.auth.signOut();
+    checkSession();
+  }
 
   // =============================
   // Init
@@ -185,4 +182,5 @@ async function logout() {
       repaintAdminTable();
     })
     .subscribe();
+
 })();
