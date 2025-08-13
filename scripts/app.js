@@ -1,26 +1,17 @@
 (() => {
-  // =============================
-  // Supabase Config
-  // =============================
   const SUPABASE_URL = "https://icqjefaxvuaxmlgyusgc.supabase.co";
-  const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImljcWplZmF4dnVheG1sZ3l1c2djIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTUxMjAyODAsImV4cCI6MjA3MDY5NjI4MH0.prPCfB2CryD7dOb9LeRxU6obsCVXCTYTmTUMuWi97jg"; // replace with your key
+  const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImljcWplZmF4dnVheG1sZ3l1c2djIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTUxMjAyODAsImV4cCI6MjA3MDY5NjI4MH0.prPCfB2CryD7dOb9LeRxU6obsCVXCTYTmTUMuWi97jg";
   const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
   // =============================
-  // Fetch All Lizards
+  // Fetch & Manage Lizards
   // =============================
   async function getAll() {
     const { data, error } = await supabase.from("lizards").select("*").order("name");
-    if (error) {
-      console.error("Error fetching lizards:", error);
-      return [];
-    }
+    if (error) return [];
     return data;
   }
 
-  // =============================
-  // Add / Update / Delete Lizards
-  // =============================
   async function addLizard(lizard) {
     const { error } = await supabase.from("lizards").insert([lizard]);
     if (error) alert("Error adding lizard: " + error.message);
@@ -36,9 +27,6 @@
     if (error) alert("Error deleting lizard: " + error.message);
   }
 
-  // =============================
-  // Render Admin Table
-  // =============================
   async function repaintAdminTable() {
     const list = await getAll();
     const tbody = document.querySelector("#lizardTable tbody");
@@ -96,7 +84,7 @@
   }
 
   // =============================
-  // Setup Admin Add Form
+  // Admin Add Form
   // =============================
   function setupAdminAdd() {
     const btn = document.getElementById("btnAdd");
@@ -111,22 +99,21 @@
       const stock = parseInt(document.getElementById("stock").value) || 0;
       const img = document.getElementById("img").value.trim() || "assets/images/gecko.svg";
       const desc = document.getElementById("desc").value.trim();
-
       const id = nm.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
-      await addLizard({ id, name: nm, scientific: sci, category: cat, price, stock, image: img, desc });
 
+      await addLizard({ id, name: nm, scientific: sci, category: cat, price, stock, image: img, desc });
       await repaintAdminTable();
       ["name","sci","cat","price","stock","img","desc"].forEach(id => document.getElementById(id).value = "");
     });
   }
 
   // =============================
-  // Google Login
+  // Google Login & Session
   // =============================
   async function loginWithGoogle() {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
-      options: { redirectTo: "https://yourdomain.com/admin.html" } // <-- your live admin page
+      options: { redirectTo: window.location.origin + "/admin.html" }
     });
     if (error) console.error("Login error:", error.message);
   }
@@ -170,7 +157,7 @@
     checkSession();
   });
 
-  // Optional real-time sync
+  // Real-time sync for admin table
   supabase.channel('lizard_changes')
     .on('postgres_changes', { event: '*', schema: 'public', table: 'lizards' }, payload => {
       repaintAdminTable();
