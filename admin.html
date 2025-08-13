@@ -1,34 +1,37 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin Panel</title>
-  <link rel="stylesheet" href="styles/styles.css">
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Admin Panel — Lizard Market</title>
+  <link rel="stylesheet" href="styles/styles.css"/>
 </head>
 <body>
-  <!-- Password Overlay -->
-  <div id="password-overlay" style="position:fixed; inset:0; display:flex; justify-content:center; align-items:center; background:rgba(0,0,0,.85); z-index:9999;">
-    <div style="background:var(--card); padding:2rem; border-radius:1rem; text-align:center; width:320px; box-shadow: var(--shadow);">
-      <h2>Admin Login</h2>
-      <input type="password" id="admin-pass" class="input" placeholder="Enter password">
-      <button id="admin-submit" class="btn" style="margin-top:1rem;">Login</button>
-      <p id="admin-error" style="color:var(--error); margin-top:.5rem;"></p>
-    </div>
+<main class="section container">
+
+  <!-- Password page -->
+  <div id="password-page" class="card" style="max-width:400px; margin:auto; display:grid; gap:1rem;">
+    <h2>Admin Login</h2>
+    <input type="password" id="adm-pass" class="input" placeholder="Enter password">
+    <button class="btn" id="adm-login">Unlock</button>
+    <p id="adm-status" class="muted">Locked</p>
   </div>
 
-  <!-- Admin Content -->
-  <div class="container" id="admin-content" style="display:none; padding-top:2rem;">
-    <h1>Admin Panel</h1>
-    <div style="display:flex; gap:1rem; flex-wrap:wrap; margin-bottom:1rem;">
+  <!-- Admin content -->
+  <div id="adm-body" style="display:none; margin-top:2rem; gap:1.5rem;">
+    <h2>Manage Lizards</h2>
+    <div class="grid" style="gap:1rem; max-width:800px;">
       <input type="text" id="name" class="input" placeholder="Name">
-      <input type="text" id="sci" class="input" placeholder="Scientific Name">
+      <input type="text" id="sci" class="input" placeholder="Scientific name">
       <input type="text" id="cat" class="input" placeholder="Category">
       <input type="number" id="price" class="input" placeholder="Price">
       <input type="number" id="stock" class="input" placeholder="Stock">
       <input type="text" id="img" class="input" placeholder="Image URL">
       <input type="text" id="desc" class="input" placeholder="Description">
-      <button id="btnAdd" class="btn">Add Lizard</button>
+      <button class="btn" id="btnAdd">Add Lizard</button>
+      <button class="btn alt" id="btnClear">Clear</button>
+      <button class="btn" id="btnExport">Export JSON</button>
+      <input type="file" id="file-import" class="input">
     </div>
 
     <table class="table" id="lizardTable">
@@ -43,8 +46,11 @@
       </thead>
       <tbody></tbody>
     </table>
+    <p id="adm-warn" class="muted"></p>
   </div>
+</main>
 
-  <script src="app.js"></script>
+<script src="scripts/app.js"></script>
+<script>window.__PAGE__ = "admin";</script>
 </body>
 </html>
