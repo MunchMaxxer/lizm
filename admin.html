@@ -1,51 +1,87 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Lizard Market - Admin</title>
-  <link rel="stylesheet" href="styles.css" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lizard Market Admin</title>
+<link rel="stylesheet" href="styles.css">
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 </head>
 <body>
-  <header>
-    <h1>🦎 Lizard Market Admin</h1>
-    <p id="adm-status">Locked</p>
-  </header>
 
-  <main id="adm-main">
-    <section id="adm-login-section">
-      <input type="password" id="adm-pass" placeholder="Enter password"/>
-      <button id="adm-login" class="btn">Login</button>
-    </section>
+<nav class="nav">
+  <div class="container nav-inner">
+    <a class="logo" href="#">
+      <div class="logo-mark"></div>
+      Lizard Market <span class="muted">Admin</span>
+    </a>
+    <div class="nav-links">
+      <a href="shop.html" class="btn alt">Shop View</a>
+    </div>
+  </div>
+</nav>
 
-    <section id="adm-body" style="display:none;">
-      <h2>Add New Lizard</h2>
-      <p id="adm-warn"></p>
-      <div class="form-grid">
-        <input type="text" id="lz-name" placeholder="Name" />
-        <input type="text" id="lz-sci" placeholder="Scientific name" />
-        <input type="text" id="lz-cat" placeholder="Category" />
-        <input type="number" id="lz-price" placeholder="Price" />
-        <input type="number" id="lz-stock" placeholder="Stock" />
-        <input type="text" id="lz-img" placeholder="Image URL" />
-        <textarea id="lz-desc" placeholder="Description"></textarea>
+<section class="section">
+  <div class="container">
+    <h2>Manage Lizards</h2>
+    <div class="card">
+      <div class="form-row">
+        <div>
+          <label class="label">Name</label>
+          <input id="name" class="input" type="text">
+        </div>
+        <div>
+          <label class="label">Scientific</label>
+          <input id="sci" class="input" type="text">
+        </div>
       </div>
-      <button id="btn-add" class="btn">Add Lizard</button>
-      <button id="btn-clear" class="btn alt">Clear Fields</button>
-      <hr/>
-      <h2>Inventory</h2>
-      <table id="tbl">
+      <div class="form-row">
+        <div>
+          <label class="label">Category</label>
+          <input id="cat" class="input" type="text">
+        </div>
+        <div>
+          <label class="label">Price</label>
+          <input id="price" class="input" type="number" min="0" step="0.01">
+        </div>
+      </div>
+      <div class="form-row">
+        <div>
+          <label class="label">Stock</label>
+          <input id="stock" class="input" type="number" min="0" step="1">
+        </div>
+        <div>
+          <label class="label">Image URL</label>
+          <input id="img" class="input" type="text" placeholder="https://...">
+        </div>
+      </div>
+      <div>
+        <label class="label">Description</label>
+        <textarea id="desc" class="input" rows="3"></textarea>
+      </div>
+      <div style="margin-top:1rem;">
+        <button id="btnAdd" class="btn">Add Lizard</button>
+      </div>
+    </div>
+
+    <h3 style="margin-top:2rem;">Inventory</h3>
+    <div class="card">
+      <table class="table" id="lizardTable">
         <thead>
           <tr>
-            <th>Name</th><th>Category</th><th>Price</th><th>Stock</th><th>Actions</th>
+            <th>Name</th>
+            <th>Scientific</th>
+            <th>Category</th>
+            <th>Price</th>
+            <th>Stock</th>
           </tr>
         </thead>
         <tbody></tbody>
       </table>
-    </section>
-  </main>
+    </div>
+  </div>
+</section>
 
-  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-  <script src="app.js"></script>
+<script src="app.js"></script>
 </body>
 </html>
