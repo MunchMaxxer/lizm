@@ -7,34 +7,20 @@
   <link rel="stylesheet" href="styles/styles.css"/>
 </head>
 <body>
-<main class="section container">
 
-  <!-- Password page -->
-  <div id="password-page" class="card" style="max-width:400px; margin:auto; display:grid; gap:1rem;">
-    <h2>Admin Login</h2>
-    <input type="password" id="adm-pass" class="input" placeholder="Enter password">
-    <button class="btn" id="adm-login">Unlock</button>
-    <p id="adm-status" class="muted">Locked</p>
+<div class="section" id="adm-login-page">
+  <div class="container" style="max-width:400px; margin:auto; text-align:center; padding:2rem;">
+    <h1>Admin Login</h1>
+    <input type="password" id="adm-pass" class="input" placeholder="Enter password"/>
+    <button id="adm-login" class="btn" style="margin-top:1rem;">Unlock</button>
+    <p id="adm-status" class="muted" style="margin-top:0.5rem;">Locked</p>
   </div>
+</div>
 
-  <!-- Admin content -->
-  <div id="adm-body" style="display:none; margin-top:2rem; gap:1.5rem;">
-    <h2>Manage Lizards</h2>
-    <div class="grid" style="gap:1rem; max-width:800px;">
-      <input type="text" id="name" class="input" placeholder="Name">
-      <input type="text" id="sci" class="input" placeholder="Scientific name">
-      <input type="text" id="cat" class="input" placeholder="Category">
-      <input type="number" id="price" class="input" placeholder="Price">
-      <input type="number" id="stock" class="input" placeholder="Stock">
-      <input type="text" id="img" class="input" placeholder="Image URL">
-      <input type="text" id="desc" class="input" placeholder="Description">
-      <button class="btn" id="btnAdd">Add Lizard</button>
-      <button class="btn alt" id="btnClear">Clear</button>
-      <button class="btn" id="btnExport">Export JSON</button>
-      <input type="file" id="file-import" class="input">
-    </div>
-
-    <table class="table" id="lizardTable">
+<div id="adm-body" class="section" style="display:none;">
+  <div class="container">
+    <h1>Admin Panel</h1>
+    <table id="lizardTable" class="table">
       <thead>
         <tr>
           <th>Name</th>
@@ -42,15 +28,26 @@
           <th>Category</th>
           <th>Price</th>
           <th>Stock</th>
+          <th>Actions</th>
         </tr>
       </thead>
       <tbody></tbody>
     </table>
-    <p id="adm-warn" class="muted"></p>
+
+    <h2>Add New Lizard</h2>
+    <div class="form-row">
+      <input type="text" id="name" class="input" placeholder="Name"/>
+      <input type="text" id="sci" class="input" placeholder="Scientific Name"/>
+      <input type="text" id="cat" class="input" placeholder="Category"/>
+      <input type="number" id="price" class="input" placeholder="Price"/>
+      <input type="number" id="stock" class="input" placeholder="Stock"/>
+      <input type="text" id="img" class="input" placeholder="Image URL"/>
+      <input type="text" id="desc" class="input" placeholder="Description"/>
+    </div>
+    <button id="btnAdd" class="btn" style="margin-top:1rem;">Add Lizard</button>
   </div>
-</main>
+</div>
 
 <script src="scripts/app.js"></script>
-<script>window.__PAGE__ = "admin";</script>
 </body>
 </html>
