@@ -1,89 +1,50 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Lizard Admin Panel</title>
-<link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Panel</title>
+  <link rel="stylesheet" href="styles/styles.css">
 </head>
 <body>
-  <nav class="nav">
-    <div class="nav-inner container">
-      <a href="shop.html" class="logo">
-        <div class="logo-mark"></div>
-        Lizard Admin
-      </a>
+  <!-- Password Overlay -->
+  <div id="password-overlay" style="position:fixed; inset:0; display:flex; justify-content:center; align-items:center; background:rgba(0,0,0,.85); z-index:9999;">
+    <div style="background:var(--card); padding:2rem; border-radius:1rem; text-align:center; width:320px; box-shadow: var(--shadow);">
+      <h2>Admin Login</h2>
+      <input type="password" id="admin-pass" class="input" placeholder="Enter password">
+      <button id="admin-submit" class="btn" style="margin-top:1rem;">Login</button>
+      <p id="admin-error" style="color:var(--error); margin-top:.5rem;"></p>
     </div>
-  </nav>
+  </div>
 
-  <main class="container section">
-    <h2>Admin Dashboard</h2>
+  <!-- Admin Content -->
+  <div class="container" id="admin-content" style="display:none; padding-top:2rem;">
+    <h1>Admin Panel</h1>
+    <div style="display:flex; gap:1rem; flex-wrap:wrap; margin-bottom:1rem;">
+      <input type="text" id="name" class="input" placeholder="Name">
+      <input type="text" id="sci" class="input" placeholder="Scientific Name">
+      <input type="text" id="cat" class="input" placeholder="Category">
+      <input type="number" id="price" class="input" placeholder="Price">
+      <input type="number" id="stock" class="input" placeholder="Stock">
+      <input type="text" id="img" class="input" placeholder="Image URL">
+      <input type="text" id="desc" class="input" placeholder="Description">
+      <button id="btnAdd" class="btn">Add Lizard</button>
+    </div>
 
-    <!-- Add Lizard Form -->
-    <section class="card section">
-      <h3>Add New Lizard</h3>
-      <div class="grid form-row">
-        <div>
-          <label class="label" for="name">Name</label>
-          <input type="text" class="input" id="name" placeholder="e.g., Green Anole">
-        </div>
-        <div>
-          <label class="label" for="sci">Scientific Name</label>
-          <input type="text" class="input" id="sci" placeholder="e.g., Anolis carolinensis">
-        </div>
-        <div>
-          <label class="label" for="cat">Category</label>
-          <input type="text" class="input" id="cat" placeholder="e.g., Anole">
-        </div>
-        <div>
-          <label class="label" for="price">Price</label>
-          <input type="number" class="input" id="price" placeholder="e.g., 19.99">
-        </div>
-        <div>
-          <label class="label" for="stock">Stock</label>
-          <input type="number" class="input" id="stock" placeholder="e.g., 12">
-        </div>
-        <div>
-          <label class="label" for="img">Image URL</label>
-          <input type="text" class="input" id="img" placeholder="assets/images/gecko.svg">
-        </div>
-        <div style="grid-column: span 2;">
-          <label class="label" for="desc">Description</label>
-          <input type="text" class="input" id="desc" placeholder="Brief description">
-        </div>
-      </div>
-      <div style="margin-top:1rem; display:flex; gap:.5rem; flex-wrap:wrap">
-        <button class="btn" id="btnAdd">Add Lizard</button>
-        <button class="btn alt" type="reset" onclick="['name','sci','cat','price','stock','img','desc'].forEach(id=>document.getElementById(id).value='')">Clear</button>
-      </div>
-    </section>
+    <table class="table" id="lizardTable">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Scientific</th>
+          <th>Category</th>
+          <th>Price</th>
+          <th>Stock</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
 
-    <!-- Lizard Table -->
-    <section class="card section">
-      <h3>Inventory</h3>
-      <table class="table" id="lizardTable">
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Scientific</th>
-            <th>Category</th>
-            <th>Price</th>
-            <th>Stock</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          <!-- Rows populated by app.js -->
-        </tbody>
-      </table>
-    </section>
-  </main>
-
-  <footer class="footer">
-    &copy; 2025 Lizard Admin Panel
-  </footer>
-
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js/dist/supabase.min.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
