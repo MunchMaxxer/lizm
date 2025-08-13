@@ -8,6 +8,9 @@
     /protected/i,                   // any 'protected' literal
   ];
 
+  const SUPABASE_URL = "https://icqjefaxvuaxmlgyusgc.supabase.co";
+  const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImljcWplZmF4dnVheG1sZ3l1c2djIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTUxMjAyODAsImV4cCI6MjA3MDY5NjI4MH0.prPCfB2CryD7dOb9LeRxU6obsCVXCTYTmTUMuWi97jg";\
+  
   const seed = [
     { id: "green-anole", name: "Green Anole", scientific: "Anolis carolinensis", category: "Anole", price: 19, stock: 12, image: "assets/images/anole.svg", desc: "Small, curious, and charming climber."},
     { id: "bearded-dragon", name: "Bearded Dragon", scientific: "Pogona vitticeps", category: "Bearded Dragon", price: 119, stock: 5, image: "assets/images/bearded.svg", desc: "Gentle personalities, great for beginners."},
