@@ -135,7 +135,7 @@
   // Render Shop
   // =============================
   async function repaintShop() {
-    const grid = document.querySelector("#productGrid");
+    const grid = document.querySelector("#products");
     if (!grid) return;
 
     const list = await getAll();
@@ -149,6 +149,7 @@
         <div class="muted"><small>${l.scientific || ""}</small></div>
         <div class="price">$${l.price.toFixed(2)}</div>
         <div class="stock">Stock: ${l.stock}</div>
+        <button class="btn" onclick="window.open('https://gl.me/u/zQHlRkWldrqc','_blank')">Buy Now</button>
       `;
       grid.appendChild(card);
     });
