@@ -122,41 +122,48 @@
   }
 
   // =============================
-  // Google Login & Session
-  // =============================
-  async function loginWithGoogle() {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: { redirectTo: window.location.origin + "/admin.html" }
-    });
-    if (error) console.error("Login error:", error.message);
-  }
+// Google Login & Session
+// =============================
+async function loginWithGoogle() {
+  const { error } = await supabase.auth.signInWithOAuth({
+    provider: "google",
+    options: { redirectTo: window.location.origin + "/admin.html" }
+  });
+  if (error) console.error("Login error:", error.message);
+}
 
-  async function checkSession() {
-    const { data: { session } } = await supabase.auth.getSession();
-    const loginSection = document.getElementById("login-section");
-    const adminBody = document.getElementById("adm-body");
-    const logoutBtn = document.getElementById("btn-logout");
-    const status = document.getElementById("adm-status");
+// Handles showing/hiding the admin panel after login
+async function checkSession() {
+  const loginSection = document.getElementById("login-section");
+  const adminBody = document.getElementById("adm-body");
+  const logoutBtn = document.getElementById("btn-logout");
+  const status = document.getElementById("adm-status");
 
-    if (session && session.user.email === "fileppcat@gmail.com") {
-      loginSection.style.display = "none";
-      adminBody.style.display = "block";
-      logoutBtn.style.display = "inline-flex";
-      status.textContent = "";
-      repaintAdminTable();
-    } else {
-      loginSection.style.display = "block";
-      adminBody.style.display = "none";
-      logoutBtn.style.display = "none";
-      if (session) status.textContent = "Unauthorized user";
-    }
-  }
+  const { data: { session } } = await supabase.auth.getSession();
 
-  async function logout() {
-    await supabase.auth.signOut();
-    checkSession();
+  if (session && session.user.email === "fileppcat@gmail.com") {
+    loginSection.style.display = "none";
+    adminBody.style.display = "block";
+    logoutBtn.style.display = "inline-flex";
+    status.textContent = "";
+    repaintAdminTable();
+  } else {
+    loginSection.style.display = "block";
+    adminBody.style.display = "none";
+    logoutBtn.style.display = "none";
+    if (session) status.textContent = "Unauthorized user";
   }
+}
+
+// Listen for real-time auth state changes
+supabase.auth.onAuthStateChange((_event, session) => {
+  checkSession();
+});
+
+async function logout() {
+  await supabase.auth.signOut();
+  checkSession();
+}
 
   // =============================
   // Init
