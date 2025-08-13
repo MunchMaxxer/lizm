@@ -9,27 +9,35 @@
 <body>
   <div class="container">
     <h1>Admin Panel <span id="adm-status">Locked</span></h1>
+
     <div class="form-row">
       <input type="password" id="adm-pass" class="input" placeholder="Password">
       <button id="adm-login" class="btn">Unlock</button>
     </div>
+
     <p id="adm-warn"></p>
 
-    <div id="adm-body">
+    <!-- Hidden body until login -->
+    <div id="adm-body" style="display:none;">
       <h2>Add New Lizard</h2>
+
       <div class="form-row">
         <input id="lz-name" class="input" placeholder="Name">
         <input id="lz-sci" class="input" placeholder="Scientific Name">
       </div>
+
       <div class="form-row">
         <input id="lz-cat" class="input" placeholder="Category">
         <input id="lz-price" type="number" class="input" placeholder="Price">
       </div>
+
       <div class="form-row">
         <input id="lz-stock" type="number" class="input" placeholder="Stock">
         <input id="lz-img" class="input" placeholder="Image URL">
       </div>
+
       <textarea id="lz-desc" class="input" placeholder="Description"></textarea>
+
       <div class="form-row">
         <button id="btn-add" class="btn">Add Lizard</button>
         <button id="btn-clear" class="btn alt">Clear Fields</button>
@@ -49,7 +57,7 @@
           </tr>
         </thead>
         <tbody>
-          <!-- Inventory rows are dynamically rendered here by app.js -->
+          <!-- JS renders rows here -->
         </tbody>
       </table>
     </div>
