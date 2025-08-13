@@ -10,11 +10,13 @@
   --shadow: 0 10px 25px rgba(0,0,0,.35);
 }
 
-/* General */
+/* Global Reset */
 *{ box-sizing:border-box }
 html,body{ margin:0; padding:0; background:var(--bg); color:var(--text); font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji"; }
 a{ color:inherit; text-decoration:none }
 img{ max-width:100%; display:block }
+
+/* Layout */
 .container{ width:min(1200px, 92%); margin-inline:auto; }
 .grid{ display:grid; gap:1.25rem }
 
@@ -30,7 +32,7 @@ img{ max-width:100%; display:block }
 .btn:hover{ transform: translateY(-2px) scale(1.02) }
 .btn.alt{ background:#1f2937; border-color:#374151 }
 
-/* Badges and muted text */
+/* Badges & Text */
 .badge{ font-size:.75rem; padding:.25rem .5rem; border-radius:.5rem; background:#1f2937; color:var(--muted) }
 .muted{ color:var(--muted) }
 
@@ -55,7 +57,7 @@ img{ max-width:100%; display:block }
   border-radius:8px; box-shadow: var(--shadow); }
 .nav-links{ margin-left:auto; display:flex; gap:.75rem; flex-wrap:wrap }
 
-/* Hero section */
+/* Hero */
 .hero{
   position:relative; overflow:hidden; border-bottom:1px solid #111827;
   background: radial-gradient(1200px 600px at 10% -60%, rgba(6,182,212,.12), transparent 40%),
@@ -65,7 +67,7 @@ img{ max-width:100%; display:block }
 .hero h1{ font-size: clamp(2rem, 4vw, 3.5rem); line-height:1.08; margin:.25rem 0 1rem }
 .hero p{ font-size: clamp(1rem, 1.2vw, 1.25rem); color:var(--muted) }
 
-/* KV card effect */
+/* KV Section */
 .kv{
   position:relative; aspect-ratio: 1/1; border-radius:1.5rem; overflow:hidden; border:1px solid #1f2937;
   background: linear-gradient(160deg, #0b1220, #0f172a);
@@ -81,6 +83,9 @@ img{ max-width:100%; display:block }
 .section h2{ font-size: clamp(1.5rem, 2.5vw, 2.25rem); margin:0 0 .75rem }
 .cards{ grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)) }
 
+/* Footer */
+.footer{ padding:2rem 0; color:#9CA3AF; border-top:1px solid #111827; text-align:center }
+
 /* Scroll reveal */
 .reveal{ opacity:0; transform: translateY(12px) scale(.98); transition: opacity .6s ease, transform .6s ease }
 .reveal.show{ opacity:1; transform: none }
@@ -93,27 +98,34 @@ img{ max-width:100%; display:block }
 /* Forms */
 .input, select, textarea{
   width:100%; background:#0b1220; color:var(--text); border:1px solid #1f2937;
-  border-radius:.8rem; padding:.7rem .9rem; outline:none; transition:border-color .15s ease
+  border-radius:.8rem; padding:.7rem .9rem; outline:none; transition:border-color .15s ease;
+  font-size:.95rem;
 }
 .input:focus, select:focus, textarea:focus{ border-color:#374151 }
 .label{ font-size:.85rem; color:var(--muted); margin:.5rem 0 .25rem }
 .form-row{ display:grid; gap:.75rem }
 @media (min-width: 720px){ .form-row{ grid-template-columns: 1fr 1fr } }
 
-/* Tables for admin panel */
-.table{ width:100%; border-collapse: collapse; margin-top:1rem }
+/* Tables */
+.table{ width:100%; border-collapse: collapse; }
 .table th, .table td{ border-bottom:1px solid #1f2937; padding:.6rem .4rem; text-align:left; }
 .table th{ color:#9CA3AF; font-weight:600; }
 .table td small{ color:#9CA3AF }
-.table td button{ font-size:.85rem; padding:.3rem .6rem }
 
-/* Admin panel layout */
-#adm-body{ display:none; grid-template-columns:1fr; gap:1rem; margin-top:1rem; }
-#adm-warn{ color:var(--error); margin-bottom:.5rem }
-#adm-status{ font-weight:700; margin-left:.5rem }
-
-/* Horizontal rule */
+/* HR */
 hr{ border:0; border-top:1px solid #1f2937; margin:1rem 0 }
 
-/* Footer */
-.footer{ padding:2rem 0; color:#9CA3AF; border-top:1px solid #111827; text-align:center }
+/* === Admin panel specific === */
+#adm-body{ display:grid; grid-template-columns: 1fr 1fr; gap:1.5rem; margin-top:1.5rem; }
+#adm-warn{ margin:0.5rem 0; font-weight:600; color:var(--warning); }
+#tbl{ max-height:500px; overflow:auto; display:block; }
+#tbl table{ width:100%; border-collapse:collapse; }
+#tbl th, #tbl td{ padding:.5rem .4rem; border-bottom:1px solid #1f2937; }
+#tbl th{ color:var(--muted); font-weight:600; }
+#tbl td button{ font-size:.85rem; padding:.4rem .6rem; border-radius:.5rem; }
+
+/* Responsive Admin */
+@media (max-width: 720px){
+  #adm-body{ grid-template-columns: 1fr; }
+  #tbl{ max-height:300px; }
+}
