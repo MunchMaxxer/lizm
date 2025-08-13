@@ -109,27 +109,28 @@
   // Admin Password Page
   // =============================
   function setupAdminAuth() {
-    const passInput = document.getElementById("adm-pass");
-    const loginBtn = document.getElementById("adm-login");
-    const status = document.getElementById("adm-status");
-    const body = document.getElementById("adm-body");
+  const passInput = document.getElementById("adm-pass");
+  const loginBtn = document.getElementById("adm-login");
+  const status = document.getElementById("adm-status");
+  const body = document.getElementById("adm-body");
 
-    if (!passInput || !loginBtn || !status || !body) return;
+  if (!passInput || !loginBtn || !status || !body) return;
 
-    body.style.display = "none"; // hide content until login
+  body.style.display = "none"; // hide content until login
 
-    loginBtn.addEventListener("click", () => {
-      const pw = passInput.value;
-      if (pw === ADM_OK) {
-        body.style.display = "grid";
-        status.textContent = "Unlocked";
-        repaintAdminTable();
-      } else {
-        status.textContent = "Locked";
-        alert("Incorrect password");
-      }
-    });
-  }
+  loginBtn.addEventListener("click", async () => {
+    const pw = passInput.value.trim();
+    if (pw === ADM_OK) {
+      status.textContent = "Unlocked";
+      body.style.display = "grid"; // show admin panel
+      await repaintAdminTable();    // now table exists and can be painted
+    } else {
+      status.textContent = "Locked";
+      alert("Incorrect password");
+    }
+  });
+}
+
 
   // =============================
   // Render Shop
