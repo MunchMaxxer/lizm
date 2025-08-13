@@ -16,18 +16,20 @@
     </a>
     <div class="nav-links">
       <a class="btn alt" href="shop.html" aria-label="Shop">Shop</a>
-      <button id="logoutBtn" class="btn alt" style="display:none">Logout</button>
+      <button id="btn-logout" class="btn alt" style="display:none">Logout</button>
     </div>
   </div>
 </nav>
 
-<main class="section container">
-  <div id="login-section" style="text-align:center; margin-top:3rem">
-    <button id="loginBtn" class="btn">Login with Google</button>
-    <p id="loginStatus" class="muted"></p>
-  </div>
+<!-- Login overlay -->
+<div id="login-section" style="text-align:center; margin-top:3rem">
+  <button id="btn-login" class="btn">Login with Google</button>
+  <p id="adm-status" class="muted"></p>
+</div>
 
-  <div id="admin-section" style="display:none;">
+<!-- Admin panel -->
+<div id="adm-body" style="display:none;">
+  <main class="section container">
     <h1>Admin Panel</h1>
     <div style="margin-bottom:1rem;">
       <input id="name" class="input" placeholder="Name">
@@ -52,8 +54,8 @@
       </thead>
       <tbody></tbody>
     </table>
-  </div>
-</main>
+  </main>
+</div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 <script src="scripts/app.js"></script>
