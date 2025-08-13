@@ -2,7 +2,7 @@
   // =============================
   // Admin Password
   // =============================
-  const ADM_OK = "vxv23m@lzmktgg"; // password checked here only
+  const ADM_OK = "vxv23m@lzmktgg"; // password
 
   // =============================
   // Supabase Config
@@ -48,14 +48,14 @@
   }
 
   // =============================
-  // Render Admin Table
+  // Admin Table Rendering
   // =============================
   async function repaintAdminTable() {
-    const list = await getAll();
     const tbody = document.querySelector("#lizardTable tbody");
     if (!tbody) return;
 
     tbody.innerHTML = "";
+    const list = await getAll();
     list.forEach(l => {
       const tr = document.createElement("tr");
       tr.innerHTML = `
@@ -67,13 +67,13 @@
         <td style="display:flex; gap:.4rem">
           <button class="btn alt" data-inc="${l.id}">+1</button>
           <button class="btn alt" data-dec="${l.id}">-1</button>
-          <button class="btn" data-del="${l.id}" style="background:linear-gradient(135deg, #ef4444, #f59e0b)">Delete</button>
+          <button class="btn" data-del="${l.id}" style="background:linear-gradient(135deg,#ef4444,#f59e0b)">Delete</button>
         </td>
       `;
       tbody.appendChild(tr);
     });
 
-    // Event listeners for each row
+    // Add button event listeners
     tbody.querySelectorAll("[data-inc]").forEach(btn => {
       btn.addEventListener("click", async e => {
         const id = e.currentTarget.getAttribute("data-inc");
@@ -109,55 +109,26 @@
   // Admin Password Page
   // =============================
   function setupAdminAuth() {
-  const passInput = document.getElementById("adm-pass");
-  const loginBtn = document.getElementById("adm-login");
-  const status = document.getElementById("adm-status");
-  const body = document.getElementById("adm-body");
+    const passInput = document.getElementById("adm-pass");
+    const loginBtn = document.getElementById("adm-login");
+    const status = document.getElementById("adm-status");
+    const body = document.getElementById("adm-body");
+    const loginPage = document.getElementById("adm-login-page");
 
-  if (!passInput || !loginBtn || !status || !body) return;
+    if (!passInput || !loginBtn || !status || !body || !loginPage) return;
 
-  body.style.display = "none"; // hide content until login
+    body.style.display = "none"; // hide content until login
 
-  loginBtn.addEventListener("click", async () => {
-    const pw = passInput.value.trim();
-    if (pw === ADM_OK) {
-      status.textContent = "Unlocked";
-      body.style.display = "grid"; // show admin panel
-      await repaintAdminTable();    // now table exists and can be painted
-    } else {
-      status.textContent = "Locked";
-      alert("Incorrect password");
-    }
-  });
-}
-
-
-  // =============================
-  // Render Shop
-  // =============================
-  async function repaintShop() {
-    const grid = document.querySelector("#products");
-    if (!grid) return;
-
-    const list = await getAll();
-    grid.innerHTML = "";
-    list.forEach(l => {
-      const card = document.createElement("div");
-      card.className = "card reveal";
-      card.innerHTML = `
-        <img src="${l.image}" alt="${l.name}">
-        <div class="title">${l.name}</div>
-        <div class="muted"><small>${l.scientific || ""}</small></div>
-        <div class="price">$${l.price.toFixed(2)}</div>
-        <div class="stock">Stock: ${l.stock}</div>
-        <button class="btn" onclick="window.open('https://gl.me/u/zQHlRkWldrqc','_blank')">Buy Now</button>
-      `;
-      grid.appendChild(card);
-    });
-
-    // Scroll reveal
-    document.querySelectorAll(".reveal").forEach(el => {
-      setTimeout(() => el.classList.add("show"), 100);
+    loginBtn.addEventListener("click", async () => {
+      if (passInput.value.trim() === ADM_OK) {
+        loginPage.style.display = "none";
+        body.style.display = "block";
+        status.textContent = "Unlocked";
+        await repaintAdminTable();
+      } else {
+        status.textContent = "Locked";
+        alert("Incorrect password");
+      }
     });
   }
 
@@ -187,6 +158,35 @@
   }
 
   // =============================
+  // Shop Rendering
+  // =============================
+  async function repaintShop() {
+    const grid = document.querySelector("#products");
+    if (!grid) return;
+
+    const list = await getAll();
+    grid.innerHTML = "";
+    list.forEach(l => {
+      const card = document.createElement("div");
+      card.className = "card reveal";
+      card.innerHTML = `
+        <img src="${l.image}" alt="${l.name}">
+        <div class="title">${l.name}</div>
+        <div class="muted"><small>${l.scientific || ""}</small></div>
+        <div class="price">$${l.price.toFixed(2)}</div>
+        <div class="stock">Stock: ${l.stock}</div>
+        <button class="btn" onclick="window.open('https://gl.me/u/zQHlRkWldrqc')">Buy</button>
+      `;
+      grid.appendChild(card);
+    });
+
+    // Scroll reveal
+    document.querySelectorAll(".reveal").forEach(el => {
+      setTimeout(() => el.classList.add("show"), 100);
+    });
+  }
+
+  // =============================
   // Init
   // =============================
   document.addEventListener("DOMContentLoaded", () => {
@@ -195,7 +195,9 @@
     repaintShop();
   });
 
-  // Optional real-time sync
+  // =============================
+  // Real-time sync
+  // =============================
   supabase.channel('lizard_changes')
     .on('postgres_changes', { event: '*', schema: 'public', table: 'lizards' }, payload => {
       repaintAdminTable();
