@@ -102,6 +102,7 @@
       const sci = document.getElementById("sci").value.trim();
       let cat = document.getElementById("cat").value.trim();
 
+      // Only allow Gecko, Lizard, or Skink
       if (!allowedCategories.includes(cat)) {
         alert("Category must be: Gecko, Lizard, or Skink");
         return;
