@@ -13,15 +13,23 @@
     const { data } = await supabase.auth.getSession();
     if (data?.session) checkAdmin(data.session.user.email);
 
-    const loginBtn = document.getElementById("loginGoogle");
-    if (loginBtn) {
-      loginBtn.addEventListener("click", async () => {
-        await supabase.auth.signInWithOAuth({
-          provider: "google",
-          options: { redirectTo: window.location.href }
-        });
-      });
+document.addEventListener("DOMContentLoaded", () => {
+  const ADM_OK = "vxv23m@lzmktgg";
+  const passInput = document.getElementById("adm-pass");
+  const loginBtn = document.getElementById("adm-login");
+  const body = document.getElementById("adm-body");
+
+  body.style.display = "none"; // hide content
+
+  loginBtn.addEventListener("click", () => {
+    if (passInput.value === ADM_OK) {
+      body.style.display = "block";
+      alert("Unlocked!");
+    } else {
+      alert("Wrong password");
     }
+  });
+});
 
     supabase.auth.onAuthStateChange((_event, session) => {
       if (session) checkAdmin(session.user.email);
