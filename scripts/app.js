@@ -8,9 +8,6 @@
     /protected/i,                   // any 'protected' literal
   ];
 
-  const SUPABASE_URL = "https://icqjefaxvuaxmlgyusgc.supabase.co";
-  const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImljcWplZmF4dnVheG1sZ3l1c2djIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTUxMjAyODAsImV4cCI6MjA3MDY5NjI4MH0.prPCfB2CryD7dOb9LeRxU6obsCVXCTYTmTUMuWi97jg";\
-  
   const seed = [
     { id: "green-anole", name: "Green Anole", scientific: "Anolis carolinensis", category: "Anole", price: 19, stock: 12, image: "assets/images/anole.svg", desc: "Small, curious, and charming climber."},
     { id: "bearded-dragon", name: "Bearded Dragon", scientific: "Pogona vitticeps", category: "Bearded Dragon", price: 119, stock: 5, image: "assets/images/bearded.svg", desc: "Gentle personalities, great for beginners."},
@@ -18,17 +15,30 @@
     { id: "house-gecko", name: "Common House Gecko", scientific: "Hemidactylus frenatus", category: "Gecko", price: 15, stock: 10, image: "assets/images/gecko.svg", desc: "Hardy and beginner-friendly."}
   ];
 
-  function getAll(){
-    const raw = localStorage.getItem(KEY);
-    if(!raw){
-      localStorage.setItem(KEY, JSON.stringify(seed));
-      return seed.slice();
-    }
-    try { return JSON.parse(raw); } catch { return seed.slice(); }
+// Supabase client setup
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+async function getAll(){
+  const { data, error } = await supabase.from("lizards").select("*").order("name");
+  if(error){
+    console.error("Error fetching from Supabase:", error);
+    return [];
   }
-  function setAll(list){
-    localStorage.setItem(KEY, JSON.stringify(list));
+  return data;
+}
+
+async function setAll(list){
+  // Wipes table and re-inserts — for admin bulk updates
+  const { error: delError } = await supabase.from("lizards").delete().neq("id", "");
+  if(delError){
+    console.error("Error clearing table:", delError);
+    return;
   }
+  const { error: insError } = await supabase.from("lizards").insert(list);
+  if(insError){
+    console.error("Error inserting to table:", insError);
+  }
+}
 
   // Scroll reveal
   const io = new IntersectionObserver(entries => {
