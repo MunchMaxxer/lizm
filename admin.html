@@ -7,49 +7,65 @@
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <div class="container">
-    <h1>Admin Panel <span id="adm-status">Locked</span></h1>
-
-    <div class="form-row">
-      <input type="password" id="adm-pass" class="input" placeholder="Password">
-      <button id="adm-login" class="btn">Unlock</button>
+  <nav class="nav">
+    <div class="nav-inner container">
+      <a href="shop.html" class="logo">
+        <div class="logo-mark"></div>
+        Lizard Admin
+      </a>
     </div>
+  </nav>
 
-    <p id="adm-warn"></p>
+  <main class="container section">
+    <h2>Admin Dashboard</h2>
 
-    <!-- Hidden body until login -->
-    <div id="adm-body" style="display:none;">
-      <h2>Add New Lizard</h2>
-
-      <div class="form-row">
-        <input id="lz-name" class="input" placeholder="Name">
-        <input id="lz-sci" class="input" placeholder="Scientific Name">
+    <!-- Add Lizard Form -->
+    <section class="card section">
+      <h3>Add New Lizard</h3>
+      <div class="grid form-row">
+        <div>
+          <label class="label" for="name">Name</label>
+          <input type="text" class="input" id="name" placeholder="e.g., Green Anole">
+        </div>
+        <div>
+          <label class="label" for="sci">Scientific Name</label>
+          <input type="text" class="input" id="sci" placeholder="e.g., Anolis carolinensis">
+        </div>
+        <div>
+          <label class="label" for="cat">Category</label>
+          <input type="text" class="input" id="cat" placeholder="e.g., Anole">
+        </div>
+        <div>
+          <label class="label" for="price">Price</label>
+          <input type="number" class="input" id="price" placeholder="e.g., 19.99">
+        </div>
+        <div>
+          <label class="label" for="stock">Stock</label>
+          <input type="number" class="input" id="stock" placeholder="e.g., 12">
+        </div>
+        <div>
+          <label class="label" for="img">Image URL</label>
+          <input type="text" class="input" id="img" placeholder="assets/images/gecko.svg">
+        </div>
+        <div style="grid-column: span 2;">
+          <label class="label" for="desc">Description</label>
+          <input type="text" class="input" id="desc" placeholder="Brief description">
+        </div>
       </div>
-
-      <div class="form-row">
-        <input id="lz-cat" class="input" placeholder="Category">
-        <input id="lz-price" type="number" class="input" placeholder="Price">
+      <div style="margin-top:1rem; display:flex; gap:.5rem; flex-wrap:wrap">
+        <button class="btn" id="btnAdd">Add Lizard</button>
+        <button class="btn alt" type="reset" onclick="['name','sci','cat','price','stock','img','desc'].forEach(id=>document.getElementById(id).value='')">Clear</button>
       </div>
+    </section>
 
-      <div class="form-row">
-        <input id="lz-stock" type="number" class="input" placeholder="Stock">
-        <input id="lz-img" class="input" placeholder="Image URL">
-      </div>
-
-      <textarea id="lz-desc" class="input" placeholder="Description"></textarea>
-
-      <div class="form-row">
-        <button id="btn-add" class="btn">Add Lizard</button>
-        <button id="btn-clear" class="btn alt">Clear Fields</button>
-        <button id="btn-export" class="btn">Export JSON</button>
-        <input type="file" id="file-import" class="input">
-      </div>
-
-      <h2>Current Inventory</h2>
-      <table class="table" id="tbl">
+    <!-- Lizard Table -->
+    <section class="card section">
+      <h3>Inventory</h3>
+      <table class="table" id="lizardTable">
         <thead>
           <tr>
             <th>Name</th>
+            <th>Scientific</th>
             <th>Category</th>
             <th>Price</th>
             <th>Stock</th>
@@ -57,12 +73,17 @@
           </tr>
         </thead>
         <tbody>
-          <!-- JS renders rows here -->
+          <!-- Rows populated by app.js -->
         </tbody>
       </table>
-    </div>
-  </div>
+    </section>
+  </main>
 
+  <footer class="footer">
+    &copy; 2025 Lizard Admin Panel
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js/dist/supabase.min.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
