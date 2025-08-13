@@ -13,88 +13,64 @@
     <a href="index.html" class="logo">
       <span class="logo-mark" aria-hidden="true"></span>
       <span>Lizard Market</span>
-      <span class="badge">Admin Panel</span>
     </a>
-    <div class="nav-links">
-      <a class="btn alt" href="shop.html" aria-label="Shop">Shop</a>
+    <div class="nav-links" id="navLinks">
+      <a class="btn alt" href="shop.html">Shop</a>
+      <a class="btn" href="admin.html" id="adminTab" style="display:none;">Admin</a>
     </div>
   </div>
 </nav>
 
-<!-- Login Page -->
-<div id="adm-login-page" class="section" style="display:grid; place-items:center; min-height:70vh; text-align:center;">
-  <h2>Admin Login</h2>
-  <p id="adm-status">Locked</p>
-  <button id="adm-login" class="btn">Login with Google</button>
-</div>
-
-<!-- Admin Body -->
-<div id="adm-body" class="container grid" style="grid-template-columns:1fr; gap:1rem; display:none;">
-  <h1>Admin Panel</h1>
-
-  <!-- Add Lizard Form -->
-  <div class="card">
-    <h2>Add Lizard</h2>
-    <div class="form-row">
-      <div>
-        <label class="label">Name</label>
-        <input type="text" id="name" class="input"/>
-      </div>
-      <div>
-        <label class="label">Scientific Name</label>
-        <input type="text" id="sci" class="input"/>
-      </div>
-      <div>
-        <label class="label">Category</label>
-        <input type="text" id="cat" class="input"/>
-      </div>
-      <div>
-        <label class="label">Price</label>
-        <input type="number" id="price" class="input"/>
-      </div>
-      <div>
-        <label class="label">Stock</label>
-        <input type="number" id="stock" class="input"/>
-      </div>
-      <div>
-        <label class="label">Image URL</label>
-        <input type="text" id="img" class="input"/>
-      </div>
-      <div style="grid-column:1/-1">
-        <label class="label">Description</label>
-        <input type="text" id="desc" class="input"/>
-      </div>
-    </div>
-    <button id="btnAdd" class="btn" style="margin-top:1rem">Add Lizard</button>
-  </div>
-
-  <!-- Lizard Table -->
-  <div class="card">
-    <h2>All Lizards</h2>
-    <table id="lizardTable" class="table">
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Scientific</th>
-          <th>Category</th>
-          <th>Price</th>
-          <th>Stock</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
-  </div>
-</div>
-
-<footer class="footer">
+<main class="section" id="adminBody" style="display:none;">
   <div class="container">
-    <p>© 2025 Lizard Market — Admin Panel</p>
-  </div>
-</footer>
+    <h1>Admin Panel</h1>
+    <div class="card">
+      <h2>Add Lizard</h2>
+      <div class="form-row">
+        <input class="input" id="name" placeholder="Name">
+        <input class="input" id="sci" placeholder="Scientific Name">
+      </div>
+      <div class="form-row">
+        <input class="input" id="cat" placeholder="Category">
+        <input class="input" id="price" placeholder="Price">
+      </div>
+      <div class="form-row">
+        <input class="input" id="stock" placeholder="Stock">
+        <input class="input" id="img" placeholder="Image URL">
+      </div>
+      <div class="form-row">
+        <input class="input" id="desc" placeholder="Description">
+      </div>
+      <button class="btn" id="btnAdd">Add Lizard</button>
+    </div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <div class="card">
+      <h2>All Lizards</h2>
+      <table class="table" id="lizardTable">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Scientific</th>
+            <th>Category</th>
+            <th>Price</th>
+            <th>Stock</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+</main>
+
+<div class="section" id="loginSection">
+  <div class="container" style="display:flex; justify-content:center; align-items:center; min-height:300px;">
+    <button class="btn" id="loginGoogle">Log in with Google</button>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/supabase.min.js"></script>
 <script src="scripts/app.js"></script>
-<script>window.__PAGE__ = "admin";</script>
+<script>window.__PAGE__="admin";</script>
 </body>
 </html>
