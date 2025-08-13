@@ -1,7 +1,7 @@
 
 (() => {
   const KEY = "lz_products_v1";
-  const ADM_OK = "admin123";
+  const ADM_OK = "vxv23m@lzmktgg";
 
   const ILLEGAL = [
     /horned\s*lizard/i,            // e.g., Texas horned lizard
