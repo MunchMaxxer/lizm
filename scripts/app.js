@@ -1,4 +1,7 @@
 (() => {
+  // =============================
+  // Supabase Config
+  // =============================
   const SUPABASE_URL = "https://icqjefaxvuaxmlgyusgc.supabase.co";
   const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImljcWplZmF4dnVheG1sZ3l1c2djIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTUxMjAyODAsImV4cCI6MjA3MDY5NjI4MH0.prPCfB2CryD7dOb9LeRxU6obsCVXCTYTmTUMuWi97jg";
   const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -8,7 +11,10 @@
   // =============================
   async function getAll() {
     const { data, error } = await supabase.from("lizards").select("*").order("name");
-    if (error) return [];
+    if (error) {
+      console.error("Error fetching lizards:", error);
+      return [];
+    }
     return data;
   }
 
@@ -121,20 +127,21 @@
   async function checkSession() {
     const { data: { session } } = await supabase.auth.getSession();
     const loginSection = document.getElementById("login-section");
-    const adminSection = document.getElementById("admin-section");
-    const logoutBtn = document.getElementById("logoutBtn");
-    const loginStatus = document.getElementById("loginStatus");
+    const adminBody = document.getElementById("adm-body");
+    const logoutBtn = document.getElementById("btn-logout");
+    const status = document.getElementById("adm-status");
 
     if (session && session.user.email === "fileppcat@gmail.com") {
       loginSection.style.display = "none";
-      adminSection.style.display = "block";
+      adminBody.style.display = "block";
       logoutBtn.style.display = "inline-flex";
+      status.textContent = "";
       repaintAdminTable();
     } else {
       loginSection.style.display = "block";
-      adminSection.style.display = "none";
+      adminBody.style.display = "none";
       logoutBtn.style.display = "none";
-      if (session) loginStatus.textContent = "Unauthorized user";
+      if (session) status.textContent = "Unauthorized user";
     }
   }
 
@@ -147,8 +154,8 @@
   // Init
   // =============================
   document.addEventListener("DOMContentLoaded", () => {
-    const loginBtn = document.getElementById("loginBtn");
-    const logoutBtn = document.getElementById("logoutBtn");
+    const loginBtn = document.getElementById("btn-login");
+    const logoutBtn = document.getElementById("btn-logout");
 
     if (loginBtn) loginBtn.addEventListener("click", loginWithGoogle);
     if (logoutBtn) logoutBtn.addEventListener("click", logout);
