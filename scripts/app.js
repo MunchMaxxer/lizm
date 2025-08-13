@@ -7,7 +7,7 @@
   const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
   // =============================
-  // Admin Allowed Email
+  // Admin Email
   // =============================
   const ADMIN_EMAIL = "fileppcat@gmail.com";
 
@@ -16,40 +16,85 @@
   // =============================
   async function getAll() {
     const { data, error } = await supabase.from("lizards").select("*").order("name");
-    if (error) {
-      console.error("Error fetching lizards:", error);
-      return [];
-    }
+    if (error) { console.error(error); return []; }
     return data;
   }
 
   // =============================
-  // CRUD Functions
+  // Add Lizard
   // =============================
   async function addLizard(lizard) {
     const { error } = await supabase.from("lizards").insert([lizard]);
     if (error) alert("Error adding lizard: " + error.message);
   }
 
+  // =============================
+  // Update Lizard
+  // =============================
   async function updateLizard(id, fields) {
     const { error } = await supabase.from("lizards").update(fields).eq("id", id);
     if (error) alert("Error updating lizard: " + error.message);
   }
 
+  // =============================
+  // Delete Lizard
+  // =============================
   async function deleteLizard(id) {
     const { error } = await supabase.from("lizards").delete().eq("id", id);
     if (error) alert("Error deleting lizard: " + error.message);
   }
 
   // =============================
-  // Admin Table Rendering
+  // Admin Overlay
+  // =============================
+  function setupAdminOverlay(user) {
+    const overlay = document.getElementById("adm-overlay");
+    const body = document.getElementById("adm-body");
+    const status = document.getElementById("adm-status");
+
+    if (!overlay || !body || !status) return;
+
+    if (user.email === ADMIN_EMAIL) {
+      overlay.style.display = "none"; // hide login overlay
+      body.style.display = "grid"; // show admin content
+      status.textContent = "Unlocked";
+      repaintAdminTable();
+    } else {
+      overlay.style.display = "grid"; // show login overlay
+      body.style.display = "none"; // hide admin content
+      status.textContent = "Access Denied";
+    }
+  }
+
+  // =============================
+  // Google Login
+  // =============================
+  async function loginWithGoogle() {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: { redirectTo: window.location.href }
+    });
+    if (error) alert("Login failed: " + error.message);
+  }
+
+  // =============================
+  // Logout
+  // =============================
+  async function logout() {
+    await supabase.auth.signOut();
+    window.location.reload();
+  }
+
+  // =============================
+  // Admin Table
   // =============================
   async function repaintAdminTable() {
-    const list = await getAll();
     const tbody = document.querySelector("#lizardTable tbody");
     if (!tbody) return;
 
+    const list = await getAll();
     tbody.innerHTML = "";
+
     list.forEach(l => {
       const tr = document.createElement("tr");
       tr.innerHTML = `
@@ -71,7 +116,10 @@
       btn.addEventListener("click", async e => {
         const id = e.currentTarget.getAttribute("data-inc");
         const item = (await getAll()).find(x => x.id === id);
-        if (item) await updateLizard(id, { stock: item.stock + 1 }).then(repaintAdminTable);
+        if (item) {
+          await updateLizard(id, { stock: item.stock + 1 });
+          repaintAdminTable();
+        }
       });
     });
 
@@ -79,14 +127,20 @@
       btn.addEventListener("click", async e => {
         const id = e.currentTarget.getAttribute("data-dec");
         const item = (await getAll()).find(x => x.id === id);
-        if (item && item.stock > 0) await updateLizard(id, { stock: item.stock - 1 }).then(repaintAdminTable);
+        if (item && item.stock > 0) {
+          await updateLizard(id, { stock: item.stock - 1 });
+          repaintAdminTable();
+        }
       });
     });
 
     tbody.querySelectorAll("[data-del]").forEach(btn => {
       btn.addEventListener("click", async e => {
         const id = e.currentTarget.getAttribute("data-del");
-        if (confirm("Delete this lizard?")) await deleteLizard(id).then(repaintAdminTable);
+        if (confirm("Delete this lizard?")) {
+          await deleteLizard(id);
+          repaintAdminTable();
+        }
       });
     });
   }
@@ -117,93 +171,32 @@
   }
 
   // =============================
-  // Shop Rendering
+  // Initialize
   // =============================
-  async function repaintShop() {
-    const grid = document.querySelector("#productGrid");
-    if (!grid) return;
+  document.addEventListener("DOMContentLoaded", async () => {
+    const loginBtn = document.getElementById("btn-login");
+    if (loginBtn) loginBtn.addEventListener("click", loginWithGoogle);
 
-    const list = await getAll();
-    grid.innerHTML = "";
-    list.forEach(l => {
-      const card = document.createElement("div");
-      card.className = "card reveal";
-      card.innerHTML = `
-        <img src="${l.image}" alt="${l.name}">
-        <div class="title">${l.name}</div>
-        <div class="muted"><small>${l.scientific || ""}</small></div>
-        <div class="price">$${l.price.toFixed(2)}</div>
-        <div class="stock">Stock: ${l.stock}</div>
-      `;
-      grid.appendChild(card);
-    });
+    const logoutBtn = document.getElementById("btn-logout");
+    if (logoutBtn) logoutBtn.addEventListener("click", logout);
 
-    document.querySelectorAll(".reveal").forEach(el => {
-      setTimeout(() => el.classList.add("show"), 100);
-    });
-  }
-
-  // =============================
-  // Google Auth
-  // =============================
-  async function setupGoogleLogin() {
-    const loginBtn = document.getElementById("loginBtn");
-    const logoutBtn = document.getElementById("logoutBtn");
-    const adminTab = document.querySelector(".nav a[href='admin.html']");
-
-    if (!loginBtn || !logoutBtn) return;
-
-    // Check if already logged in
     const { data: { session } } = await supabase.auth.getSession();
-    if (session && session.user.email === ADMIN_EMAIL) {
-      if (adminTab) adminTab.style.display = "inline-flex";
-      repaintAdminTable();
-      loginBtn.style.display = "none";
-      logoutBtn.style.display = "inline-flex";
-    }
+    if (session?.user) setupAdminOverlay(session.user);
 
-    loginBtn.addEventListener("click", async () => {
-      const { error } = await supabase.auth.signInWithOAuth({ provider: 'google' });
-      if (error) console.error("Login error:", error);
+    supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.user) setupAdminOverlay(session.user);
+      else setupAdminOverlay({ email: "" });
     });
 
-    logoutBtn.addEventListener("click", async () => {
-      await supabase.auth.signOut();
-      if (adminTab) adminTab.style.display = "none";
-      loginBtn.style.display = "inline-flex";
-      logoutBtn.style.display = "none";
-    });
-
-    // Auth state change
-    supabase.auth.onAuthStateChange((event, session) => {
-      if (session && session.user.email === ADMIN_EMAIL) {
-        if (adminTab) adminTab.style.display = "inline-flex";
-        loginBtn.style.display = "none";
-        logoutBtn.style.display = "inline-flex";
-        repaintAdminTable();
-      } else {
-        if (adminTab) adminTab.style.display = "none";
-        loginBtn.style.display = "inline-flex";
-        logoutBtn.style.display = "none";
-      }
-    });
-  }
-
-  // =============================
-  // Init
-  // =============================
-  document.addEventListener("DOMContentLoaded", () => {
     setupAdminAdd();
-    repaintShop();
-    setupGoogleLogin();
   });
 
-  // Optional real-time sync
+  // =============================
+  // Real-time Sync
+  // =============================
   supabase.channel('lizard_changes')
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'lizards' }, payload => {
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'lizards' }, () => {
       repaintAdminTable();
-      repaintShop();
     })
     .subscribe();
-
 })();
