@@ -14,64 +14,49 @@
       <span class="logo-mark" aria-hidden="true"></span>
       <span>Lizard Market</span>
     </a>
-    <div class="nav-links" id="navLinks">
-      <a class="btn alt" href="shop.html">Shop</a>
-      <a class="btn" href="admin.html" id="adminTab" style="display:none;">Admin</a>
+    <div class="nav-links">
+      <a class="btn alt" href="shop.html" aria-label="Shop">Shop</a>
+      <button id="logoutBtn" class="btn alt" style="display:none">Logout</button>
     </div>
   </div>
 </nav>
 
-<main class="section" id="adminBody" style="display:none;">
-  <div class="container">
-    <h1>Admin Panel</h1>
-    <div class="card">
-      <h2>Add Lizard</h2>
-      <div class="form-row">
-        <input class="input" id="name" placeholder="Name">
-        <input class="input" id="sci" placeholder="Scientific Name">
-      </div>
-      <div class="form-row">
-        <input class="input" id="cat" placeholder="Category">
-        <input class="input" id="price" placeholder="Price">
-      </div>
-      <div class="form-row">
-        <input class="input" id="stock" placeholder="Stock">
-        <input class="input" id="img" placeholder="Image URL">
-      </div>
-      <div class="form-row">
-        <input class="input" id="desc" placeholder="Description">
-      </div>
-      <button class="btn" id="btnAdd">Add Lizard</button>
-    </div>
+<main class="section container">
+  <div id="login-section" style="text-align:center; margin-top:3rem">
+    <button id="loginBtn" class="btn">Login with Google</button>
+    <p id="loginStatus" class="muted"></p>
+  </div>
 
-    <div class="card">
-      <h2>All Lizards</h2>
-      <table class="table" id="lizardTable">
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Scientific</th>
-            <th>Category</th>
-            <th>Price</th>
-            <th>Stock</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
+  <div id="admin-section" style="display:none;">
+    <h1>Admin Panel</h1>
+    <div style="margin-bottom:1rem;">
+      <input id="name" class="input" placeholder="Name">
+      <input id="sci" class="input" placeholder="Scientific Name">
+      <input id="cat" class="input" placeholder="Category">
+      <input id="price" class="input" placeholder="Price">
+      <input id="stock" class="input" placeholder="Stock">
+      <input id="img" class="input" placeholder="Image URL">
+      <input id="desc" class="input" placeholder="Description">
+      <button id="btnAdd" class="btn">Add Lizard</button>
     </div>
+    <table class="table" id="lizardTable">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Scientific</th>
+          <th>Category</th>
+          <th>Price</th>
+          <th>Stock</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
   </div>
 </main>
 
-<input type="password" id="adm-pass" placeholder="Admin password">
-<button id="adm-login">Login</button>
-<div id="adm-body">
-  <p>Welcome, admin!</p>
-</div>
-
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/supabase.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 <script src="scripts/app.js"></script>
-<script>window.__PAGE__="admin";</script>
+<script>window.__PAGE__ = "admin";</script>
 </body>
 </html>
