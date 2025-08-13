@@ -3,98 +3,48 @@
   // Supabase Config
   // =============================
   const SUPABASE_URL = "https://icqjefaxvuaxmlgyusgc.supabase.co";
-  const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImljcWplZmF4dnVheG1sZ3l1c2djIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTUxMjAyODAsImV4cCI6MjA3MDY5NjI4MH0.prPCfB2CryD7dOb9LeRxU6obsCVXCTYTmTUMuWi97jg";
+  const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImljcWplZmF4dnVheG1sZ3l1c2djIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTUxMjAyODAsImV4cCI6MjA3MDY5NjI4MH0.prPCfB2CryD7dOb9LeRxU6obsCVXCTYTmTUMuWi97jg"; // replace with your key
   const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-  // =============================
-  // Admin Email
-  // =============================
-  const ADMIN_EMAIL = "fileppcat@gmail.com";
 
   // =============================
   // Fetch All Lizards
   // =============================
   async function getAll() {
     const { data, error } = await supabase.from("lizards").select("*").order("name");
-    if (error) { console.error(error); return []; }
+    if (error) {
+      console.error("Error fetching lizards:", error);
+      return [];
+    }
     return data;
   }
 
   // =============================
-  // Add Lizard
+  // Add / Update / Delete Lizards
   // =============================
   async function addLizard(lizard) {
     const { error } = await supabase.from("lizards").insert([lizard]);
     if (error) alert("Error adding lizard: " + error.message);
   }
 
-  // =============================
-  // Update Lizard
-  // =============================
   async function updateLizard(id, fields) {
     const { error } = await supabase.from("lizards").update(fields).eq("id", id);
     if (error) alert("Error updating lizard: " + error.message);
   }
 
-  // =============================
-  // Delete Lizard
-  // =============================
   async function deleteLizard(id) {
     const { error } = await supabase.from("lizards").delete().eq("id", id);
     if (error) alert("Error deleting lizard: " + error.message);
   }
 
   // =============================
-  // Admin Overlay
-  // =============================
-  function setupAdminOverlay(user) {
-    const overlay = document.getElementById("adm-overlay");
-    const body = document.getElementById("adm-body");
-    const status = document.getElementById("adm-status");
-
-    if (!overlay || !body || !status) return;
-
-    if (user.email === ADMIN_EMAIL) {
-      overlay.style.display = "none"; // hide login overlay
-      body.style.display = "grid"; // show admin content
-      status.textContent = "Unlocked";
-      repaintAdminTable();
-    } else {
-      overlay.style.display = "grid"; // show login overlay
-      body.style.display = "none"; // hide admin content
-      status.textContent = "Access Denied";
-    }
-  }
-
-  // =============================
-  // Google Login
-  // =============================
-  async function loginWithGoogle() {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: { redirectTo: window.location.href }
-    });
-    if (error) alert("Login failed: " + error.message);
-  }
-
-  // =============================
-  // Logout
-  // =============================
-  async function logout() {
-    await supabase.auth.signOut();
-    window.location.reload();
-  }
-
-  // =============================
-  // Admin Table
+  // Render Admin Table
   // =============================
   async function repaintAdminTable() {
+    const list = await getAll();
     const tbody = document.querySelector("#lizardTable tbody");
     if (!tbody) return;
 
-    const list = await getAll();
     tbody.innerHTML = "";
-
     list.forEach(l => {
       const tr = document.createElement("tr");
       tr.innerHTML = `
@@ -146,7 +96,7 @@
   }
 
   // =============================
-  // Admin Add Form
+  // Setup Admin Add Form
   // =============================
   function setupAdminAdd() {
     const btn = document.getElementById("btnAdd");
@@ -171,32 +121,60 @@
   }
 
   // =============================
-  // Initialize
+  // Google Login
   // =============================
-  document.addEventListener("DOMContentLoaded", async () => {
-    const loginBtn = document.getElementById("btn-login");
-    if (loginBtn) loginBtn.addEventListener("click", loginWithGoogle);
+  async function loginWithGoogle() {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: { redirectTo: "https://yourdomain.com/admin.html" } // <-- your live admin page
+    });
+    if (error) console.error("Login error:", error.message);
+  }
 
-    const logoutBtn = document.getElementById("btn-logout");
+  async function checkSession() {
+    const { data: { session } } = await supabase.auth.getSession();
+    const loginSection = document.getElementById("login-section");
+    const adminSection = document.getElementById("admin-section");
+    const logoutBtn = document.getElementById("logoutBtn");
+    const loginStatus = document.getElementById("loginStatus");
+
+    if (session && session.user.email === "fileppcat@gmail.com") {
+      loginSection.style.display = "none";
+      adminSection.style.display = "block";
+      logoutBtn.style.display = "inline-flex";
+      repaintAdminTable();
+    } else {
+      loginSection.style.display = "block";
+      adminSection.style.display = "none";
+      logoutBtn.style.display = "none";
+      if (session) loginStatus.textContent = "Unauthorized user";
+    }
+  }
+
+  async function logout() {
+    await supabase.auth.signOut();
+    checkSession();
+  }
+
+  // =============================
+  // Init
+  // =============================
+  document.addEventListener("DOMContentLoaded", () => {
+    const loginBtn = document.getElementById("loginBtn");
+    const logoutBtn = document.getElementById("logoutBtn");
+
+    if (loginBtn) loginBtn.addEventListener("click", loginWithGoogle);
     if (logoutBtn) logoutBtn.addEventListener("click", logout);
 
-    const { data: { session } } = await supabase.auth.getSession();
-    if (session?.user) setupAdminOverlay(session.user);
-
-    supabase.auth.onAuthStateChange((_event, session) => {
-      if (session?.user) setupAdminOverlay(session.user);
-      else setupAdminOverlay({ email: "" });
-    });
-
     setupAdminAdd();
+    checkSession();
   });
 
-  // =============================
-  // Real-time Sync
-  // =============================
+  // Optional real-time sync
   supabase.channel('lizard_changes')
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'lizards' }, () => {
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'lizards' }, payload => {
       repaintAdminTable();
     })
     .subscribe();
+
 })();
