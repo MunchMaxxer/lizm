@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Admin — Lizard Market</title>
+  <link rel="stylesheet" href="styles/styles.css"/>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="container nav-inner">
+    <a href="index.html" class="logo">
+      <span class="logo-mark" aria-hidden="true"></span>
+      <span>Lizard Market</span>
+      <span class="badge" title="Special Delivery">Special Delivery</span>
+    </a>
+    <div class="nav-links">
+      <a class="btn alt" href="shop.html" aria-label="Shop">Shop</a>
+      <a class="btn alt" href="admin.html" aria-label="Admin Panel">Admin</a>
+      <a class="btn" href="#mission" aria-label="Our Mission">Our Mission</a>
+    </div>
+  </div>
+</nav>
+
+<main class="section">
+  <div class="container">
+    <h1 class="reveal">Admin Panel</h1>
+    <p class="muted reveal">Manage inventory locally in your browser using <code>localStorage</code>. You can export/import data as JSON.</p>
+
+    <div class="card reveal">
+      <h2>Sign in</h2>
+      <div class="form-row">
+        <div>
+          <label class="label" for="adm-pass">Password (default: <code>admin123</code>)</label>
+          <input id="adm-pass" class="input" type="password" placeholder="Enter admin password" />
+        </div>
+        <div style="align-self:end">
+          <button id="adm-login" class="btn">Unlock</button>
+        </div>
+      </div>
+      <p id="adm-status" class="muted" style="margin-top:.5rem">Locked</p>
+    </div>
+
+    <div id="adm-body" style="display:none" class="grid" >
+      <section class="card">
+        <h2>Add lizard</h2>
+        <p class="muted">Protected species (e.g., Texas horned lizard) are automatically blocked.</p>
+        <div class="form-row">
+          <div><label class="label" for="lz-name">Name</label><input id="lz-name" class="input" placeholder="e.g., Green Anole"></div>
+          <div><label class="label" for="lz-sci">Scientific name</label><input id="lz-sci" class="input" placeholder="e.g., Anolis carolinensis"></div>
+        </div>
+        <div class="form-row">
+          <div><label class="label" for="lz-cat">Category</label><input id="lz-cat" class="input" placeholder="Anole / Bearded Dragon / Texas Spiny Lizard / Gecko"></div>
+          <div><label class="label" for="lz-price">Price (USD)</label><input id="lz-price" class="input" type="number" min="0" value="0"></div>
+        </div>
+        <div class="form-row">
+          <div><label class="label" for="lz-stock">Stock</label><input id="lz-stock" class="input" type="number" min="0" value="1"></div>
+          <div><label class="label" for="lz-img">Image path</label><input id="lz-img" class="input" placeholder="assets/images/anole.svg"></div>
+        </div>
+        <div>
+          <label class="label" for="lz-desc">Description</label>
+          <textarea id="lz-desc" class="input" rows="3" placeholder="Short description"></textarea>
+        </div>
+        <div style="display:flex; gap:.5rem; margin-top:.75rem">
+          <button id="btn-add" class="btn">Add</button>
+          <button id="btn-clear" class="btn alt">Clear form</button>
+        </div>
+        <p id="adm-warn" class="muted" style="margin-top:.5rem"></p>
+      </section>
+
+      <section class="card">
+        <h2>Inventory</h2>
+        <table class="table" id="tbl">
+          <thead>
+            <tr><th>Name</th><th>Category</th><th>Price</th><th>Stock</th><th>Actions</th></tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+        <div style="display:flex; gap:.5rem; margin-top:.75rem">
+          <button id="btn-export" class="btn alt">Export JSON</button>
+          <label class="btn alt" for="file-import" style="cursor:pointer">Import JSON</label>
+          <input id="file-import" type="file" accept="application/json" style="display:none"/>
+        </div>
+      </section>
+    </div>
+  </div>
+</main>
+
+
+<footer class="footer">
+  <div class="container">
+    <p>© 2025 Lizard Market — Responsible, legal, and ethical reptile rehoming. No protected species, ever.</p>
+    <p><small>“Special Delivery” means each order allocates part of the payment toward responsibly sourcing your lizard and a portion toward snacks and habitat comforts for the journey.</small></p>
+  </div>
+</footer>
+
+<script src="scripts/app.js"></script>
+<script>window.__PAGE__ = "admin";</script>
+</body>
+</html>

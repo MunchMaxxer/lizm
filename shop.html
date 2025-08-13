@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Shop — Lizard Market</title>
+  <link rel="stylesheet" href="styles/styles.css"/>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="container nav-inner">
+    <a href="index.html" class="logo">
+      <span class="logo-mark" aria-hidden="true"></span>
+      <span>Lizard Market</span>
+      <span class="badge" title="Special Delivery">Special Delivery</span>
+    </a>
+    <div class="nav-links">
+      <a class="btn alt" href="shop.html" aria-label="Shop">Shop</a>
+      <a class="btn alt" href="admin.html" aria-label="Admin Panel">Admin</a>
+      <a class="btn" href="#mission" aria-label="Our Mission">Our Mission</a>
+    </div>
+  </div>
+</nav>
+
+<main class="section">
+  <div class="container grid" style="grid-template-columns: .9fr 2fr; align-items:start">
+    <aside class="card reveal">
+      <h2>Filters</h2>
+      <label class="label" for="filter-category">Category</label>
+      <select id="filter-category">
+        <option value="">All</option>
+        <option value="Anole">Anole</option>
+        <option value="Bearded Dragon">Bearded Dragon</option>
+        <option value="Texas Spiny Lizard">Texas Spiny Lizard</option>
+        <option value="Gecko">Gecko</option>
+      </select>
+
+      <label class="label" for="filter-availability">Availability</label>
+      <select id="filter-availability">
+        <option value="">Any</option>
+        <option value="in">In stock</option>
+        <option value="out">Out of stock</option>
+      </select>
+
+      <hr/>
+      <p class="muted"><strong>Special Delivery:</strong> part of your payment goes to secure the lizard responsibly, plus a snack bundle for the trip.</p>
+    </aside>
+
+    <section>
+      <div style="display:flex; align-items:center; justify-content:space-between">
+        <h1 class="reveal">Lizards</h1>
+        <span class="badge">Legal & Ethical Only</span>
+      </div>
+      <div id="products" class="grid cards reveal"></div>
+    </section>
+  </div>
+</main>
+
+<div id="purchase-modal" class="modal" aria-hidden="true" role="dialog" aria-labelledby="pm-title" aria-describedby="pm-desc" style="display:none">
+  <h3 id="pm-title">Special Delivery breakdown</h3>
+  <p id="pm-desc" class="muted">For this order, a portion helps us responsibly secure your lizard and a portion funds snacks and comfort for the trip. Confirm to place your reservation request.</p>
+  <div style="display:flex; gap:.5rem; justify-content:flex-end; margin-top:1rem">
+    <button class="btn alt" id="pm-cancel">Cancel</button>
+    <button class="btn" id="pm-confirm">Confirm reservation</button>
+  </div>
+</div>
+<div class="modal-backdrop" id="modal-backdrop"></div>
+
+
+<footer class="footer">
+  <div class="container">
+    <p>© 2025 Lizard Market — Responsible, legal, and ethical reptile rehoming. No protected species, ever.</p>
+    <p><small>“Special Delivery” means each order allocates part of the payment toward responsibly sourcing your lizard and a portion toward snacks and habitat comforts for the journey.</small></p>
+  </div>
+</footer>
+
+<script src="scripts/app.js"></script>
+<script>window.__PAGE__ = "shop";</script>
+</body>
+</html>
