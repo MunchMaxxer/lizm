@@ -1,232 +1,152 @@
-(() => {
-  // =============================
-  // Supabase Config
-  // =============================
-  const SUPABASE_URL = "https://icqjefaxvuaxmlgyusgc.supabase.co";
-  const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImljcWplZmF4dnVheG1sZ3l1c2djIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTUxMjAyODAsImV4cCI6MjA3MDY5NjI4MH0.prPCfB2CryD7dOb9LeRxU6obsCVXCTYTmTUMuWi97jg";
-  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+// scripts/app.js
 
-  // =============================
-  // Fetch & Manage Lizards
-  // =============================
-  async function getAll() {
-    const { data, error } = await supabase.from("lizards").select("*").order("name");
-    if (error) {
-      console.error("Error fetching lizards:", error);
-      return [];
-    }
-    return data;
-  }
+// ======= SUPABASE CONFIG =======
+const SUPABASE_URL = "https://icqjefaxvuaxmlgyusgc.supabase.co"; // <-- replace
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImljcWplZmF4dnVheG1sZ3l1c2djIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTUxMjAyODAsImV4cCI6MjA3MDY5NjI4MH0.prPCfB2CryD7dOb9LeRxU6obsCVXCTYTmTUMuWi97jg"; // <-- replace
+const { createClient } = supabase;
+const supabaseClient = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-  async function addLizard(lizard) {
-    const { error } = await supabase.from("lizards").insert([lizard]);
-    if (error) alert("Error adding lizard: " + error.message);
-  }
-
-  async function updateLizard(id, fields) {
-    const { error } = await supabase.from("lizards").update(fields).eq("id", id);
-    if (error) alert("Error updating lizard: " + error.message);
-  }
-
-  async function deleteLizard(id) {
-    const { error } = await supabase.from("lizards").delete().eq("id", id);
-    if (error) alert("Error deleting lizard: " + error.message);
-  }
-
-  // =============================
-  // Admin Table Rendering
-  // =============================
-  async function repaintAdminTable() {
-    const list = await getAll();
-    const tbody = document.querySelector("#lizardTable tbody");
-    if (!tbody) return;
-
-    tbody.innerHTML = "";
-    list.forEach(l => {
-      const tr = document.createElement("tr");
-      tr.innerHTML = `
-        <td>${l.name}</td>
-        <td><small>${l.scientific || ""}</small></td>
-        <td>${l.category || ""}</td>
-        <td>$${l.price.toFixed(2)}</td>
-        <td>${l.stock}</td>
-        <td style="display:flex; gap:.4rem">
-          <button class="btn alt" data-inc="${l.id}">+1</button>
-          <button class="btn alt" data-dec="${l.id}">-1</button>
-          <button class="btn" data-del="${l.id}" style="background:linear-gradient(135deg, #ef4444, #f59e0b)">Delete</button>
-        </td>
-      `;
-      tbody.appendChild(tr);
-    });
-
-    tbody.querySelectorAll("[data-inc]").forEach(btn => {
-      btn.addEventListener("click", async e => {
-        const id = e.currentTarget.getAttribute("data-inc");
-        const item = (await getAll()).find(x => x.id === id);
-        if (item) {
-          await updateLizard(id, { stock: item.stock + 1 });
-          repaintAdminTable();
-        }
-      });
-    });
-
-    tbody.querySelectorAll("[data-dec]").forEach(btn => {
-      btn.addEventListener("click", async e => {
-        const id = e.currentTarget.getAttribute("data-dec");
-        const item = (await getAll()).find(x => x.id === id);
-        if (item && item.stock > 0) {
-          await updateLizard(id, { stock: item.stock - 1 });
-          repaintAdminTable();
-        }
-      });
-    });
-
-    tbody.querySelectorAll("[data-del]").forEach(btn => {
-      btn.addEventListener("click", async e => {
-        const id = e.currentTarget.getAttribute("data-del");
-        if (confirm("Delete this lizard?")) {
-          await deleteLizard(id);
-          repaintAdminTable();
-        }
-      });
-    });
-  }
-
-  // =============================
-  // Admin Add Form
-  // =============================
-  function setupAdminAdd() {
-    const btn = document.getElementById("btnAdd");
-    if (!btn) return;
-
-    btn.addEventListener("click", async () => {
-      const nm = document.getElementById("name").value.trim();
-      if (!nm) { alert("Name required"); return; }
-      const sci = document.getElementById("sci").value.trim();
-      const cat = document.getElementById("cat").value.trim() || "Lizard";
-      const price = parseFloat(document.getElementById("price").value) || 0;
-      const stock = parseInt(document.getElementById("stock").value) || 0;
-      const img = document.getElementById("img").value.trim() || "assets/images/gecko.svg";
-      const desc = document.getElementById("desc").value.trim();
-      const id = nm.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
-
-      await addLizard({ id, name: nm, scientific: sci, category: cat, price, stock, image: img, desc });
-      await repaintAdminTable();
-      ["name","sci","cat","price","stock","img","desc"].forEach(id => document.getElementById(id).value = "");
-    });
-  }
-
-  // =============================
-  // Google Login & Session
-  // =============================
-  async function loginWithGoogle() {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: { redirectTo: window.location.origin + "/admin.html" }
-    });
-    if (error) console.error("Login error:", error.message);
-  }
-
-  async function checkSession() {
-    const { data: { session } } = await supabase.auth.getSession();
-    const loginSection = document.getElementById("login-section");
-    const adminBody = document.getElementById("adm-body");
-    const logoutBtn = document.getElementById("btn-logout");
-    const status = document.getElementById("adm-status");
-
-    if (session && session.user.email === "fileppcat@gmail.com") {
-      if (loginSection) loginSection.style.display = "none";
-      if (adminBody) adminBody.style.display = "block";
-      if (logoutBtn) logoutBtn.style.display = "inline-flex";
-      if (status) status.textContent = "";
-      repaintAdminTable();
-    } else {
-      if (loginSection) loginSection.style.display = "block";
-      if (adminBody) adminBody.style.display = "none";
-      if (logoutBtn) logoutBtn.style.display = "none";
-      if (session && status) status.textContent = "Unauthorized user";
-    }
-  }
-
-  async function logout() {
-    await supabase.auth.signOut();
-    checkSession();
-  }
-
-  // =============================
-  // Shop Page Rendering
-  // =============================
-  async function renderShop() {
-    if (window.__PAGE__ !== "shop") return;
-    const products = document.getElementById("products");
-    const template = document.getElementById("lizard-template");
-    const filterCategory = document.getElementById("filter-category");
-    const filterAvailability = document.getElementById("filter-availability");
-
-    let lizards = await getAll();
-
-    function showLizards() {
-      if (!products) return;
-      products.innerHTML = "";
-
-      let filtered = lizards.filter(l => {
-        let catOk = !filterCategory?.value || l.category === filterCategory.value;
-        let availOk = true;
-        if (filterAvailability?.value === "in") availOk = l.stock > 0;
-        if (filterAvailability?.value === "out") availOk = l.stock === 0;
-        return catOk && availOk;
-      });
-
-      filtered.forEach(l => {
-        const clone = template.content.cloneNode(true);
-        const card = clone.querySelector(".product-card");
-        if (!card) return;
-        card.querySelector("img").src = l.image || "assets/images/gecko.svg";
-        card.querySelector("img").alt = l.name;
-        card.querySelector(".name").textContent = l.name;
-        card.querySelector(".scientific").textContent = l.scientific || "";
-        card.querySelector(".desc").textContent = l.desc || "";
-        card.querySelector(".price").textContent = "$" + (l.price?.toFixed(2) || "0.00");
-        card.querySelector(".stock").textContent = l.stock > 0 ? `In stock: ${l.stock}` : "Out of stock";
-        products.appendChild(clone);
-      });
-    }
-
-    filterCategory?.addEventListener("change", showLizards);
-    filterAvailability?.addEventListener("change", showLizards);
-
-    showLizards();
-  }
-
-  // =============================
-  // Init
-  // =============================
-  document.addEventListener("DOMContentLoaded", () => {
-    if (window.__PAGE__ === "admin") {
-      const loginBtn = document.getElementById("btn-login");
-      const logoutBtn = document.getElementById("btn-logout");
-
-      if (loginBtn) loginBtn.addEventListener("click", loginWithGoogle);
-      if (logoutBtn) logoutBtn.addEventListener("click", logout);
-
-      setupAdminAdd();
-      checkSession();
-
-      // Real-time sync for admin table
-      supabase.channel('lizard_changes')
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'lizards' }, payload => {
-          repaintAdminTable();
-        })
-        .subscribe();
-    }
-
+// ======= PAGE INIT =======
+document.addEventListener("DOMContentLoaded", async () => {
     if (window.__PAGE__ === "shop") {
-      renderShop();
-      supabase.channel('lizard_changes')
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'lizards' }, payload => {
-          renderShop();
-        })
-        .subscribe();
+        await loadShopProducts();
+        setupFilters();
     }
-  });
-})();
+    if (window.__PAGE__ === "admin") {
+        setupAdminLogin();
+        setupAddLizardForm();
+    }
+});
+
+// ======= ADMIN LOGIN OVERLAY =======
+function setupAdminLogin() {
+    const loginForm = document.getElementById("admin-login-form");
+    const loginOverlay = document.getElementById("admin-login");
+    const adminPanel = document.getElementById("admin-panel");
+
+    loginForm?.addEventListener("submit", (e) => {
+        e.preventDefault();
+        const email = document.getElementById("admin-email").value;
+        const password = document.getElementById("admin-password").value;
+
+        // Hardcoded credentials example
+        if (email === "fileppcat@gmail.com" && password === "admin123") {
+            loginOverlay.style.display = "none";
+            adminPanel.style.display = "block";
+        } else {
+            alert("Invalid credentials.");
+        }
+    });
+}
+
+// ======= ADD LIZARD FORM =======
+function setupAddLizardForm() {
+    const addForm = document.getElementById("add-lizard-form");
+
+    addForm?.addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const name = document.getElementById("lizard-name").value.trim();
+        const scientific = document.getElementById("lizard-scientific").value.trim();
+        const category = document.getElementById("lizard-category").value.trim();
+        const desc = document.getElementById("lizard-desc").value.trim();
+        const image = document.getElementById("lizard-image").value.trim();
+        const price = parseFloat(document.getElementById("lizard-price").value) || 0;
+        const availability = document.getElementById("lizard-availability").value.trim();
+
+        let { error } = await supabaseClient
+            .from("lizards")
+            .insert([{ name, scientific, category, desc, image, price, availability }]);
+
+        if (error) {
+            console.error("Error adding lizard:", error);
+            alert("Failed to add lizard.");
+        } else {
+            alert("Lizard added successfully!");
+            addForm.reset();
+        }
+    });
+}
+
+// ======= LOAD SHOP PRODUCTS =======
+async function loadShopProducts(filters = {}) {
+    let query = supabaseClient.from("lizards").select("*");
+
+    if (filters.category) {
+        query = query.eq("category", filters.category);
+    }
+    if (filters.availability) {
+        query = query.eq("availability", filters.availability);
+    }
+
+    let { data: lizards, error } = await query;
+
+    if (error) {
+        console.error("Error fetching lizards:", error);
+        document.getElementById("products").innerHTML = `<p class="error">Failed to load lizards.</p>`;
+        return;
+    }
+
+    const container = document.getElementById("products");
+    const template = document.getElementById("product-template");
+    container.innerHTML = "";
+
+    if (!lizards || lizards.length === 0) {
+        container.innerHTML = "<p>No lizards found.</p>";
+        return;
+    }
+
+    lizards.forEach(lizard => {
+        const clone = template.content.cloneNode(true);
+
+        clone.querySelector(".product-image").src = lizard.image || "images/placeholder.jpg";
+        clone.querySelector(".product-image").alt = lizard.name || "Unnamed Lizard";
+        clone.querySelector(".product-name").textContent = lizard.name || "Unnamed Lizard";
+        clone.querySelector(".product-desc").textContent = lizard.desc || "";
+        clone.querySelector(".product-price").textContent = `$${lizard.price || "0.00"}`;
+        clone.querySelector(".btn-reserve").addEventListener("click", () => {
+            openPurchaseModal(lizard.name);
+        });
+
+        container.appendChild(clone);
+    });
+}
+
+// ======= FILTERS =======
+function setupFilters() {
+    const categorySelect = document.getElementById("filter-category");
+    const availabilitySelect = document.getElementById("filter-availability");
+
+    categorySelect?.addEventListener("change", () => {
+        applyFilters();
+    });
+    availabilitySelect?.addEventListener("change", () => {
+        applyFilters();
+    });
+}
+
+function applyFilters() {
+    const category = document.getElementById("filter-category").value;
+    const availability = document.getElementById("filter-availability").value;
+    loadShopProducts({ category, availability });
+}
+
+// ======= PURCHASE MODAL =======
+function openPurchaseModal(lizardName) {
+    const modal = document.getElementById("purchase-modal");
+    const backdrop = document.getElementById("modal-backdrop");
+    document.getElementById("pm-title").textContent = `Special Delivery breakdown — ${lizardName}`;
+    modal.style.display = "block";
+    backdrop.style.display = "block";
+}
+
+document.getElementById("pm-cancel")?.addEventListener("click", () => {
+    document.getElementById("purchase-modal").style.display = "none";
+    document.getElementById("modal-backdrop").style.display = "none";
+});
+
+document.getElementById("pm-confirm")?.addEventListener("click", () => {
+    window.location.href = "https://gl.me/u/zQHlRkWldrqc";
+    document.getElementById("purchase-modal").style.display = "none";
+    document.getElementById("modal-backdrop").style.display = "none";
+});
