@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <title>Shop — Lizard Market</title>
   <link rel="stylesheet" href="styles/styles.css"/>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 
@@ -25,7 +26,6 @@
 
 <main class="section">
   <div class="container grid" style="grid-template-columns: .9fr 2fr; align-items:start">
-    <!-- Filters -->
     <aside class="card reveal">
       <h2>Filters</h2>
       <label class="label" for="filter-category">Category</label>
@@ -47,29 +47,28 @@
       <p class="muted"><strong>Special Delivery:</strong> part of your payment goes to secure the lizard responsibly, plus a snack bundle for the trip.</p>
     </aside>
 
-    <!-- Product list -->
     <section>
       <div style="display:flex; align-items:center; justify-content:space-between">
         <h1 class="reveal">Lizards</h1>
         <span class="badge">Legal & Ethical Only</span>
       </div>
+
+      <!-- Template for lizards -->
+      <template id="product-template">
+        <div class="card">
+          <img class="product-image" src="" alt="">
+          <h3 class="product-name"></h3>
+          <p class="product-desc"></p>
+          <p><strong class="product-price"></strong></p>
+          <button class="btn btn-reserve">Reserve</button>
+        </div>
+      </template>
+
+      <!-- Where products will go -->
       <div id="products" class="grid cards reveal"></div>
     </section>
   </div>
 </main>
-
-<!-- Product card template -->
-<template id="lizard-template">
-  <div class="card product-card">
-    <img src="" alt="">
-    <h3 class="name"></h3>
-    <p class="scientific muted"></p>
-    <p class="desc"></p>
-    <p class="price"></p>
-    <p class="stock"></p>
-    <button class="btn buy-btn">Reserve</button>
-  </div>
-</template>
 
 <!-- Purchase modal -->
 <div id="purchase-modal" class="modal" aria-hidden="true" role="dialog" aria-labelledby="pm-title" aria-describedby="pm-desc" style="display:none">
@@ -82,7 +81,7 @@
     <button class="btn" id="pm-confirm">Confirm reservation</button>
   </div>
 </div>
-<div class="modal-backdrop" id="modal-backdrop" style="display:none"></div>
+<div class="modal-backdrop" id="modal-backdrop"></div>
 
 <footer class="footer">
   <div class="container">
@@ -94,30 +93,6 @@
 <script>
   window.__PAGE__ = "shop";
 </script>
-<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 <script src="scripts/app.js"></script>
-<script>
-  // Purchase modal behavior
-  const modal = document.getElementById("purchase-modal");
-  const backdrop = document.getElementById("modal-backdrop");
-
-  document.addEventListener("click", e => {
-    if (e.target.classList.contains("buy-btn")) {
-      modal.style.display = "block";
-      backdrop.style.display = "block";
-    }
-  });
-
-  document.getElementById("pm-cancel").addEventListener("click", () => {
-    modal.style.display = "none";
-    backdrop.style.display = "none";
-  });
-
-  document.getElementById("pm-confirm").addEventListener("click", () => {
-    window.location.href = "https://gl.me/u/zQHlRkWldrqc";
-    modal.style.display = "none";
-    backdrop.style.display = "none";
-  });
-</script>
 </body>
 </html>
