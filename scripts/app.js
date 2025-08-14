@@ -67,42 +67,46 @@ function setupAddLizardForm() {
 
 // ======= LOAD SHOP PRODUCTS =======
 async function loadShopProducts(filters = {}) {
-    try {
-        let query = supabaseClient.from("lizards").select("*");
+    let query = supabaseClient.from("lizards").select("*");
 
-        if (filters.category) query = query.eq("category", filters.category);
-        if (filters.availability) query = query.eq("availability", filters.availability);
-
-        const { data: lizards, error } = await query;
-
-        const container = document.getElementById("products");
-        container.innerHTML = "";
-
-        if (error) throw error;
-
-        if (!lizards || lizards.length === 0) {
-            container.innerHTML = "<p>No lizards found.</p>";
-            return;
-        }
-
-        const template = document.getElementById("product-template");
-
-        lizards.forEach(lizard => {
-            const clone = template.content.cloneNode(true);
-            clone.querySelector(".product-image").src = lizard.image || "images/placeholder.jpg";
-            clone.querySelector(".product-image").alt = lizard.name || "Unnamed Lizard";
-            clone.querySelector(".product-name").textContent = lizard.name || "Unnamed Lizard";
-            clone.querySelector(".product-desc").textContent = lizard.desc || "";
-            clone.querySelector(".product-price").textContent = `$${lizard.price?.toFixed(2) || "0.00"}`;
-            clone.querySelector(".btn-reserve").addEventListener("click", () => {
-                openPurchaseModal(lizard.name);
-            });
-            container.appendChild(clone);
-        });
-    } catch (err) {
-        console.error("Error fetching lizards:", err);
-        document.getElementById("products").innerHTML = `<p class="error">Failed to load lizards.</p>`;
+    if (filters.category) {
+        query = query.eq("category", filters.category);
     }
+    if (filters.availability) {
+        query = query.eq("availability", filters.availability);
+    }
+
+    let { data: lizards, error } = await query;
+
+    const container = document.getElementById("products");
+    const template = document.getElementById("product-template");
+    container.innerHTML = "";
+
+    if (error) {
+        console.error("Error fetching lizards:", error);
+        container.innerHTML = '<p class="error">Failed to load lizards.</p>';
+        return;
+    }
+
+    if (!lizards || lizards.length === 0) {
+        container.innerHTML = "<p>No lizards found.</p>";
+        return;
+    }
+
+    lizards.forEach(lizard => {
+        const clone = template.content.cloneNode(true);
+
+        clone.querySelector(".product-image").src = lizard.image || "images/placeholder.jpg";
+        clone.querySelector(".product-image").alt = lizard.name || "Unnamed Lizard";
+        clone.querySelector(".product-name").textContent = lizard.name || "Unnamed Lizard";
+        clone.querySelector(".product-desc").textContent = lizard.desc || "";
+        clone.querySelector(".product-price").textContent = `$${lizard.price?.toFixed(2) || "0.00"}`;
+        clone.querySelector(".btn-reserve").addEventListener("click", () => {
+            openPurchaseModal(lizard.name);
+        });
+
+        container.appendChild(clone);
+    });
 }
 
 // ======= FILTERS =======
