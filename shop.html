@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <title>Shop — Lizard Market</title>
   <link rel="stylesheet" href="styles/styles.css"/>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 
@@ -53,19 +52,21 @@
         <span class="badge">Legal & Ethical Only</span>
       </div>
 
-      <!-- Template for lizards -->
+      <!-- PRODUCTS LIST -->
+      <div id="products" class="grid cards reveal"></div>
+
+      <!-- TEMPLATE FOR PRODUCTS -->
       <template id="product-template">
-        <div class="card">
-          <img class="product-image" src="" alt="">
-          <h3 class="product-name"></h3>
-          <p class="product-desc"></p>
-          <p><strong class="product-price"></strong></p>
-          <button class="btn btn-reserve">Reserve</button>
+        <div class="card product-card">
+          <img class="product-image" src="" alt="" />
+          <div class="product-info">
+            <h3 class="product-name"></h3>
+            <p class="product-desc"></p>
+            <p class="product-price"></p>
+            <button class="btn btn-reserve">Reserve</button>
+          </div>
         </div>
       </template>
-
-      <!-- Where products will go -->
-      <div id="products" class="grid cards reveal"></div>
     </section>
   </div>
 </main>
@@ -93,6 +94,7 @@
 <script>
   window.__PAGE__ = "shop";
 </script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="scripts/app.js"></script>
 </body>
 </html>
