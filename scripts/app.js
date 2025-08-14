@@ -11,10 +11,7 @@
   // =============================
   async function getAll() {
     const { data, error } = await supabase.from("lizards").select("*").order("name");
-    if (error) {
-      console.error("Error fetching lizards:", error);
-      return [];
-    }
+    if (error) { console.error("Error fetching lizards:", error); return []; }
     return data;
   }
 
@@ -33,6 +30,9 @@
     if (error) alert("Error deleting lizard: " + error.message);
   }
 
+  // =============================
+  // Admin Table
+  // =============================
   async function repaintAdminTable() {
     const list = await getAll();
     const tbody = document.querySelector("#lizardTable tbody");
@@ -60,10 +60,7 @@
       btn.addEventListener("click", async e => {
         const id = e.currentTarget.getAttribute("data-inc");
         const item = (await getAll()).find(x => x.id === id);
-        if (item) {
-          await updateLizard(id, { stock: item.stock + 1 });
-          repaintAdminTable();
-        }
+        if (item) { await updateLizard(id, { stock: item.stock + 1 }); repaintAdminTable(); }
       });
     });
 
@@ -71,20 +68,14 @@
       btn.addEventListener("click", async e => {
         const id = e.currentTarget.getAttribute("data-dec");
         const item = (await getAll()).find(x => x.id === id);
-        if (item && item.stock > 0) {
-          await updateLizard(id, { stock: item.stock - 1 });
-          repaintAdminTable();
-        }
+        if (item && item.stock > 0) { await updateLizard(id, { stock: item.stock - 1 }); repaintAdminTable(); }
       });
     });
 
     tbody.querySelectorAll("[data-del]").forEach(btn => {
       btn.addEventListener("click", async e => {
         const id = e.currentTarget.getAttribute("data-del");
-        if (confirm("Delete this lizard?")) {
-          await deleteLizard(id);
-          repaintAdminTable();
-        }
+        if (confirm("Delete this lizard?")) { await deleteLizard(id); repaintAdminTable(); }
       });
     });
   }
@@ -99,28 +90,24 @@
     btn.addEventListener("click", async () => {
       const nm = document.getElementById("name").value.trim();
       if (!nm) { alert("Name required"); return; }
-
       const sci = document.getElementById("sci").value.trim();
-
-      // Force category to one of the three options
-      let cat = document.getElementById("cat").value.trim();
-      const validCats = ["Gecko", "Lizard", "Skink"];
-      if (!validCats.includes(cat)) cat = "Lizard"; // default
-
+      const cat = document.getElementById("cat").value.trim();
       const price = parseFloat(document.getElementById("price").value) || 0;
       const stock = parseInt(document.getElementById("stock").value) || 0;
       const img = document.getElementById("img").value.trim() || "assets/images/gecko.svg";
-      const desc = document.getElementById("desc").value.trim();
+      const description = document.getElementById("description").value.trim();
       const id = nm.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
 
-      await addLizard({ id, name: nm, scientific: sci, category: cat, price, stock, image: img, desc });
+      await addLizard({ id, name: nm, scientific: sci, category: cat, price, stock, image: img, description });
       await repaintAdminTable();
+
       ["name","sci","cat","price","stock","img","desc"].forEach(id => document.getElementById(id).value = "");
+      repaintShop();
     });
   }
 
   // =============================
-  // Google Login & Session
+  // Google Login
   // =============================
   async function loginWithGoogle() {
     const { error } = await supabase.auth.signInWithOAuth({
@@ -131,12 +118,11 @@
   }
 
   async function checkSession() {
+    const { data: { session } } = await supabase.auth.getSession();
     const loginSection = document.getElementById("login-section");
     const adminBody = document.getElementById("adm-body");
     const logoutBtn = document.getElementById("btn-logout");
     const status = document.getElementById("adm-status");
-
-    const { data: { session } } = await supabase.auth.getSession();
 
     if (session && session.user.email === "fileppcat@gmail.com") {
       loginSection.style.display = "none";
@@ -152,34 +138,50 @@
     }
   }
 
-  // Listen for auth changes (after redirect)
-  supabase.auth.onAuthStateChange((_event, session) => {
-    checkSession();
-  });
-
   async function logout() {
     await supabase.auth.signOut();
     checkSession();
   }
 
   // =============================
+  // Render Shop
+  // =============================
+  async function repaintShop() {
+    const grid = document.querySelector("#products");
+    if (!grid) return;
+    const list = await getAll();
+    grid.innerHTML = "";
+    list.forEach(l => {
+      const card = document.createElement("div");
+      card.className = "card reveal";
+      card.innerHTML = `
+        <img src="${l.image}" alt="${l.name}">
+        <div class="title">${l.name}</div>
+        <div class="muted"><small>${l.scientific || ""}</small></div>
+        <div class="price">$${l.price.toFixed(2)}</div>
+        <div class="stock">Stock: ${l.stock}</div>
+      `;
+      grid.appendChild(card);
+    });
+  }
+
+  // =============================
   // Init
   // =============================
   document.addEventListener("DOMContentLoaded", () => {
-    const loginBtn = document.getElementById("btn-login");
-    const logoutBtn = document.getElementById("btn-logout");
-
-    if (loginBtn) loginBtn.addEventListener("click", loginWithGoogle);
-    if (logoutBtn) logoutBtn.addEventListener("click", logout);
+    document.getElementById("btn-login")?.addEventListener("click", loginWithGoogle);
+    document.getElementById("btn-logout")?.addEventListener("click", logout);
 
     setupAdminAdd();
     checkSession();
+    repaintShop();
   });
 
-  // Real-time sync for admin table
+  // Real-time updates
   supabase.channel('lizard_changes')
     .on('postgres_changes', { event: '*', schema: 'public', table: 'lizards' }, payload => {
       repaintAdminTable();
+      repaintShop();
     })
     .subscribe();
 
