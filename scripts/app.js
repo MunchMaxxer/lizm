@@ -3,21 +3,21 @@
   // Supabase Config
   // =============================
   const SUPABASE_URL = "https://icqjefaxvuaxmlgyusgc.supabase.co";
-  const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImljcWplZmF4dnVheG1sZ3l1c2djIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTUxMjAyODAsImV4cCI6MjA3MDY5NjI4MH0.prPCfB2CryD7dOb9LeRxU6obsCVXCTYTmTUMuWi97jg";
+  const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImljcWplZmF4dnVheG1sZ3l1cmlneXVsZ2MiLCJyb2xlIjoiYW5vbiIsImlhdCI6MTc1NTEyMDI4MCwiZXhwIjoyMDcwNjk2MjgwfQ.prPCfB2CryD7dOb9LeRxU6obsCVXCTYTmTUMuWi97jg";
   const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
   // =============================
-  // Fetch Lizards
+  // Fetch & Manage Lizards
   // =============================
   async function getAll() {
     const { data, error } = await supabase.from("lizards").select("*").order("name");
-    if (error) { console.error("Error fetching lizards:", error); return []; }
+    if (error) {
+      console.error("Error fetching lizards:", error);
+      return [];
+    }
     return data;
   }
 
-  // =============================
-  // Admin Panel Functions
-  // =============================
   async function addLizard(lizard) {
     const { error } = await supabase.from("lizards").insert([lizard]);
     if (error) alert("Error adding lizard: " + error.message);
@@ -33,6 +33,9 @@
     if (error) alert("Error deleting lizard: " + error.message);
   }
 
+  // =============================
+  // Admin Table
+  // =============================
   async function repaintAdminTable() {
     const list = await getAll();
     const tbody = document.querySelector("#lizardTable tbody");
@@ -60,7 +63,10 @@
       btn.addEventListener("click", async e => {
         const id = e.currentTarget.getAttribute("data-inc");
         const item = (await getAll()).find(x => x.id === id);
-        if (item) { await updateLizard(id, { stock: item.stock + 1 }); repaintAdminTable(); repaintShop(); }
+        if (item) {
+          await updateLizard(id, { stock: item.stock + 1 });
+          repaintAdminTable();
+        }
       });
     });
 
@@ -68,18 +74,27 @@
       btn.addEventListener("click", async e => {
         const id = e.currentTarget.getAttribute("data-dec");
         const item = (await getAll()).find(x => x.id === id);
-        if (item && item.stock > 0) { await updateLizard(id, { stock: item.stock - 1 }); repaintAdminTable(); repaintShop(); }
+        if (item && item.stock > 0) {
+          await updateLizard(id, { stock: item.stock - 1 });
+          repaintAdminTable();
+        }
       });
     });
 
     tbody.querySelectorAll("[data-del]").forEach(btn => {
       btn.addEventListener("click", async e => {
         const id = e.currentTarget.getAttribute("data-del");
-        if (confirm("Delete this lizard?")) { await deleteLizard(id); repaintAdminTable(); repaintShop(); }
+        if (confirm("Delete this lizard?")) {
+          await deleteLizard(id);
+          repaintAdminTable();
+        }
       });
     });
   }
 
+  // =============================
+  // Admin Add Form
+  // =============================
   function setupAdminAdd() {
     const btn = document.getElementById("btnAdd");
     if (!btn) return;
@@ -98,12 +113,55 @@
       await addLizard({ id, name: nm, scientific: sci, category: cat, price, stock, image: img, desc });
       await repaintAdminTable();
       ["name","sci","cat","price","stock","img","desc"].forEach(id => document.getElementById(id).value = "");
-      repaintShop();
     });
   }
 
   // =============================
-  // Admin Login
+  // Shop Page Display
+  // =============================
+  async function renderShop() {
+    if (window.__PAGE__ !== "shop") return;
+
+    const products = document.getElementById("products");
+    const template = document.getElementById("lizard-template");
+    if (!products || !template) return;
+
+    const lizards = await getAll();
+    products.innerHTML = ""; // clear
+
+    const categoryFilter = document.getElementById("filter-category");
+    const availabilityFilter = document.getElementById("filter-availability");
+
+    const filtered = lizards.filter(l => {
+      let ok = true;
+      if (categoryFilter && categoryFilter.value && l.category !== categoryFilter.value) ok = false;
+      if (availabilityFilter && availabilityFilter.value) {
+        if (availabilityFilter.value === "in" && l.stock <= 0) ok = false;
+        if (availabilityFilter.value === "out" && l.stock > 0) ok = false;
+      }
+      return ok;
+    });
+
+    filtered.forEach(l => {
+      const clone = template.content.cloneNode(true);
+      const card = clone.querySelector(".product-card");
+      clone.querySelector("img").src = l.image || "assets/images/gecko.svg";
+      clone.querySelector("img").alt = l.name;
+      clone.querySelector(".name").textContent = l.name;
+      clone.querySelector(".scientific").textContent = l.scientific || "";
+      clone.querySelector(".desc").textContent = l.desc || "";
+      clone.querySelector(".price").textContent = `$${(l.price || 0).toFixed(2)}`;
+      clone.querySelector(".stock").textContent = `Stock: ${l.stock}`;
+      products.appendChild(clone);
+    });
+
+    // Re-filter when filters change
+    if (categoryFilter) categoryFilter.addEventListener("change", renderShop);
+    if (availabilityFilter) availabilityFilter.addEventListener("change", renderShop);
+  }
+
+  // =============================
+  // Google Login & Session
   // =============================
   async function loginWithGoogle() {
     const { error } = await supabase.auth.signInWithOAuth({
@@ -121,16 +179,16 @@
     const status = document.getElementById("adm-status");
 
     if (session && session.user.email === "fileppcat@gmail.com") {
-      loginSection?.style.setProperty("display","none");
-      adminBody?.style.setProperty("display","block");
-      logoutBtn?.style.setProperty("display","inline-flex");
-      status && (status.textContent = "");
+      loginSection.style.display = "none";
+      adminBody.style.display = "block";
+      logoutBtn.style.display = "inline-flex";
+      status.textContent = "";
       repaintAdminTable();
     } else {
-      loginSection?.style.setProperty("display","block");
-      adminBody?.style.setProperty("display","none");
-      logoutBtn?.style.setProperty("display","none");
-      if (session) status && (status.textContent = "Unauthorized user");
+      loginSection.style.display = "block";
+      adminBody.style.display = "none";
+      logoutBtn.style.display = "none";
+      if (session) status.textContent = "Unauthorized user";
     }
   }
 
@@ -140,61 +198,25 @@
   }
 
   // =============================
-  // Shop Rendering
-  // =============================
-  async function repaintShop() {
-    const grid = document.querySelector("#products");
-    if (!grid) return;
-    const list = await getAll();
-
-    const catFilter = document.getElementById("filter-category")?.value;
-    const availFilter = document.getElementById("filter-availability")?.value;
-
-    const filtered = list.filter(l => {
-      let ok = true;
-      if (catFilter) ok = ok && l.category?.toLowerCase() === catFilter.toLowerCase();
-      if (availFilter) {
-        ok = ok && ((availFilter === "in" && l.stock > 0) || (availFilter === "out" && l.stock <= 0));
-      }
-      return ok;
-    });
-
-    grid.innerHTML = "";
-    filtered.forEach(l => {
-      const card = document.createElement("div");
-      card.className = "card reveal";
-      card.innerHTML = `
-        <img src="${l.image}" alt="${l.name}">
-        <div class="title">${l.name}</div>
-        <div class="muted"><small>${l.scientific || ""}</small></div>
-        <div class="price">$${l.price.toFixed(2)}</div>
-        <div class="stock">Stock: ${l.stock}</div>
-        <div class="desc">${l.desc || ""}</div>
-      `;
-      grid.appendChild(card);
-    });
-  }
-
-  // =============================
   // Init
   // =============================
   document.addEventListener("DOMContentLoaded", () => {
-    document.getElementById("btn-login")?.addEventListener("click", loginWithGoogle);
-    document.getElementById("btn-logout")?.addEventListener("click", logout);
+    const loginBtn = document.getElementById("btn-login");
+    const logoutBtn = document.getElementById("btn-logout");
+
+    if (loginBtn) loginBtn.addEventListener("click", loginWithGoogle);
+    if (logoutBtn) logoutBtn.addEventListener("click", logout);
 
     setupAdminAdd();
     checkSession();
-    repaintShop();
-
-    document.getElementById("filter-category")?.addEventListener("change", repaintShop);
-    document.getElementById("filter-availability")?.addEventListener("change", repaintShop);
+    renderShop();
   });
 
   // Real-time updates
   supabase.channel('lizard_changes')
     .on('postgres_changes', { event: '*', schema: 'public', table: 'lizards' }, payload => {
       repaintAdminTable();
-      repaintShop();
+      renderShop();
     })
     .subscribe();
 
