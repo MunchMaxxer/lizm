@@ -1,15 +1,12 @@
-// scripts/app.js
-
 // ======= SUPABASE CONFIG =======
-const SUPABASE_URL = "https://icqjefaxvuaxmlgyusgc.supabase.co"; // <-- replace
-const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImljcWplZmF4dnVheG1sZ3l1c2djIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTUxMjAyODAsImV4cCI6MjA3MDY5NjI4MH0.prPCfB2CryD7dOb9LeRxU6obsCVXCTYTmTUMuWi97jg"; // <-- replace
-const { createClient } = supabase;
-const supabaseClient = createClient(SUPABASE_URL, SUPABASE_KEY);
+const SUPABASE_URL = "https://icqjefaxvuaxmlgyusgc.supabase.co"; // replace if needed
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImljcWplZmF4dnVheG1sZ3l1c2djIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTUxMjAyODAsImV4cCI6MjA3MDY5NjI4MH0.prPCfB2CryD7dOb9LeRxU6obsCVXCTYTmTUMuWi97jg";
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // ======= PAGE INIT =======
 document.addEventListener("DOMContentLoaded", async () => {
     if (window.__PAGE__ === "shop") {
-        await loadShopProducts();
+        await loadShopProducts(); // Load all products initially
         setupFilters();
     }
     if (window.__PAGE__ === "admin") {
@@ -18,7 +15,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 });
 
-// ======= ADMIN LOGIN OVERLAY =======
+// ======= ADMIN LOGIN =======
 function setupAdminLogin() {
     const loginForm = document.getElementById("admin-login-form");
     const loginOverlay = document.getElementById("admin-login");
@@ -54,7 +51,7 @@ function setupAddLizardForm() {
         const price = parseFloat(document.getElementById("lizard-price").value) || 0;
         const availability = document.getElementById("lizard-availability").value.trim();
 
-        let { error } = await supabaseClient
+        const { error } = await supabaseClient
             .from("lizards")
             .insert([{ name, scientific, category, desc, image, price, availability }]);
 
@@ -70,46 +67,42 @@ function setupAddLizardForm() {
 
 // ======= LOAD SHOP PRODUCTS =======
 async function loadShopProducts(filters = {}) {
-    let query = supabaseClient.from("lizards").select("*");
+    try {
+        let query = supabaseClient.from("lizards").select("*");
 
-    if (filters.category) {
-        query = query.eq("category", filters.category);
-    }
-    if (filters.availability) {
-        query = query.eq("availability", filters.availability);
-    }
+        if (filters.category) query = query.eq("category", filters.category);
+        if (filters.availability) query = query.eq("availability", filters.availability);
 
-    let { data: lizards, error } = await query;
+        const { data: lizards, error } = await query;
 
-    if (error) {
-        console.error("Error fetching lizards:", error);
-        document.getElementById("products").innerHTML = `<p class="error">Failed to load lizards.</p>`;
-        return;
-    }
+        const container = document.getElementById("products");
+        container.innerHTML = "";
 
-    const container = document.getElementById("products");
-    const template = document.getElementById("product-template");
-    container.innerHTML = "";
+        if (error) throw error;
 
-    if (!lizards || lizards.length === 0) {
-        container.innerHTML = "<p>No lizards found.</p>";
-        return;
-    }
+        if (!lizards || lizards.length === 0) {
+            container.innerHTML = "<p>No lizards found.</p>";
+            return;
+        }
 
-    lizards.forEach(lizard => {
-        const clone = template.content.cloneNode(true);
+        const template = document.getElementById("product-template");
 
-        clone.querySelector(".product-image").src = lizard.image || "images/placeholder.jpg";
-        clone.querySelector(".product-image").alt = lizard.name || "Unnamed Lizard";
-        clone.querySelector(".product-name").textContent = lizard.name || "Unnamed Lizard";
-        clone.querySelector(".product-desc").textContent = lizard.desc || "";
-        clone.querySelector(".product-price").textContent = `$${lizard.price || "0.00"}`;
-        clone.querySelector(".btn-reserve").addEventListener("click", () => {
-            openPurchaseModal(lizard.name);
+        lizards.forEach(lizard => {
+            const clone = template.content.cloneNode(true);
+            clone.querySelector(".product-image").src = lizard.image || "images/placeholder.jpg";
+            clone.querySelector(".product-image").alt = lizard.name || "Unnamed Lizard";
+            clone.querySelector(".product-name").textContent = lizard.name || "Unnamed Lizard";
+            clone.querySelector(".product-desc").textContent = lizard.desc || "";
+            clone.querySelector(".product-price").textContent = `$${lizard.price?.toFixed(2) || "0.00"}`;
+            clone.querySelector(".btn-reserve").addEventListener("click", () => {
+                openPurchaseModal(lizard.name);
+            });
+            container.appendChild(clone);
         });
-
-        container.appendChild(clone);
-    });
+    } catch (err) {
+        console.error("Error fetching lizards:", err);
+        document.getElementById("products").innerHTML = `<p class="error">Failed to load lizards.</p>`;
+    }
 }
 
 // ======= FILTERS =======
@@ -117,12 +110,8 @@ function setupFilters() {
     const categorySelect = document.getElementById("filter-category");
     const availabilitySelect = document.getElementById("filter-availability");
 
-    categorySelect?.addEventListener("change", () => {
-        applyFilters();
-    });
-    availabilitySelect?.addEventListener("change", () => {
-        applyFilters();
-    });
+    categorySelect?.addEventListener("change", applyFilters);
+    availabilitySelect?.addEventListener("change", applyFilters);
 }
 
 function applyFilters() {
