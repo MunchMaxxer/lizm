@@ -7,7 +7,7 @@
   const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
   // =============================
-  // Fetch Lizards
+  // Fetch & Manage Lizards
   // =============================
   async function getAll() {
     const { data, error } = await supabase.from("lizards").select("*").order("name");
@@ -18,9 +18,6 @@
     return data;
   }
 
-  // =============================
-  // Admin functions
-  // =============================
   async function addLizard(lizard) {
     const { error } = await supabase.from("lizards").insert([lizard]);
     if (error) alert("Error adding lizard: " + error.message);
@@ -36,8 +33,10 @@
     if (error) alert("Error deleting lizard: " + error.message);
   }
 
+  // =============================
+  // Admin Table Rendering
+  // =============================
   async function repaintAdminTable() {
-    if (window.__PAGE__ !== "admin") return;
     const list = await getAll();
     const tbody = document.querySelector("#lizardTable tbody");
     if (!tbody) return;
@@ -93,6 +92,9 @@
     });
   }
 
+  // =============================
+  // Admin Add Form
+  // =============================
   function setupAdminAdd() {
     const btn = document.getElementById("btnAdd");
     if (!btn) return;
@@ -101,7 +103,7 @@
       const nm = document.getElementById("name").value.trim();
       if (!nm) { alert("Name required"); return; }
       const sci = document.getElementById("sci").value.trim();
-      const cat = document.getElementById("cat").value.trim();
+      const cat = document.getElementById("cat").value.trim() || "Lizard";
       const price = parseFloat(document.getElementById("price").value) || 0;
       const stock = parseInt(document.getElementById("stock").value) || 0;
       const img = document.getElementById("img").value.trim() || "assets/images/gecko.svg";
@@ -111,45 +113,6 @@
       await addLizard({ id, name: nm, scientific: sci, category: cat, price, stock, image: img, desc });
       await repaintAdminTable();
       ["name","sci","cat","price","stock","img","desc"].forEach(id => document.getElementById(id).value = "");
-    });
-  }
-
-  // =============================
-  // Shop Rendering
-  // =============================
-  async function renderShop() {
-    if (window.__PAGE__ !== "shop") return;
-
-    const products = document.getElementById("products");
-    const template = document.getElementById("lizard-template");
-    if (!products || !template) return;
-
-    const lizards = await getAll();
-    products.innerHTML = "";
-
-    const categoryFilter = document.getElementById("filter-category");
-    const availabilityFilter = document.getElementById("filter-availability");
-
-    const filtered = lizards.filter(l => {
-      let ok = true;
-      if (categoryFilter.value && l.category !== categoryFilter.value) ok = false;
-      if (availabilityFilter.value) {
-        if (availabilityFilter.value === "in" && l.stock <= 0) ok = false;
-        if (availabilityFilter.value === "out" && l.stock > 0) ok = false;
-      }
-      return ok;
-    });
-
-    filtered.forEach(l => {
-      const clone = template.content.cloneNode(true);
-      clone.querySelector("img").src = l.image || "assets/images/gecko.svg";
-      clone.querySelector("img").alt = l.name;
-      clone.querySelector(".name").textContent = l.name;
-      clone.querySelector(".scientific").textContent = l.scientific || "";
-      clone.querySelector(".desc").textContent = l.desc || "";
-      clone.querySelector(".price").textContent = `$${(l.price || 0).toFixed(2)}`;
-      clone.querySelector(".stock").textContent = `Stock: ${l.stock}`;
-      products.appendChild(clone);
     });
   }
 
@@ -172,16 +135,16 @@
     const status = document.getElementById("adm-status");
 
     if (session && session.user.email === "fileppcat@gmail.com") {
-      loginSection?.style.display = "none";
-      adminBody?.style.display = "block";
-      logoutBtn?.style.display = "inline-flex";
-      status && (status.textContent = "");
+      if (loginSection) loginSection.style.display = "none";
+      if (adminBody) adminBody.style.display = "block";
+      if (logoutBtn) logoutBtn.style.display = "inline-flex";
+      if (status) status.textContent = "";
       repaintAdminTable();
     } else {
-      loginSection?.style.display = "block";
-      adminBody?.style.display = "none";
-      logoutBtn?.style.display = "none";
-      if (session) status && (status.textContent = "Unauthorized user");
+      if (loginSection) loginSection.style.display = "block";
+      if (adminBody) adminBody.style.display = "none";
+      if (logoutBtn) logoutBtn.style.display = "none";
+      if (session && status) status.textContent = "Unauthorized user";
     }
   }
 
@@ -191,33 +154,79 @@
   }
 
   // =============================
+  // Shop Page Rendering
+  // =============================
+  async function renderShop() {
+    if (window.__PAGE__ !== "shop") return;
+    const products = document.getElementById("products");
+    const template = document.getElementById("lizard-template");
+    const filterCategory = document.getElementById("filter-category");
+    const filterAvailability = document.getElementById("filter-availability");
+
+    let lizards = await getAll();
+
+    function showLizards() {
+      if (!products) return;
+      products.innerHTML = "";
+
+      let filtered = lizards.filter(l => {
+        let catOk = !filterCategory?.value || l.category === filterCategory.value;
+        let availOk = true;
+        if (filterAvailability?.value === "in") availOk = l.stock > 0;
+        if (filterAvailability?.value === "out") availOk = l.stock === 0;
+        return catOk && availOk;
+      });
+
+      filtered.forEach(l => {
+        const clone = template.content.cloneNode(true);
+        const card = clone.querySelector(".product-card");
+        if (!card) return;
+        card.querySelector("img").src = l.image || "assets/images/gecko.svg";
+        card.querySelector("img").alt = l.name;
+        card.querySelector(".name").textContent = l.name;
+        card.querySelector(".scientific").textContent = l.scientific || "";
+        card.querySelector(".desc").textContent = l.desc || "";
+        card.querySelector(".price").textContent = "$" + (l.price?.toFixed(2) || "0.00");
+        card.querySelector(".stock").textContent = l.stock > 0 ? `In stock: ${l.stock}` : "Out of stock";
+        products.appendChild(clone);
+      });
+    }
+
+    filterCategory?.addEventListener("change", showLizards);
+    filterAvailability?.addEventListener("change", showLizards);
+
+    showLizards();
+  }
+
+  // =============================
   // Init
   // =============================
   document.addEventListener("DOMContentLoaded", () => {
-    const loginBtn = document.getElementById("btn-login");
-    const logoutBtn = document.getElementById("btn-logout");
-
-    if (loginBtn) loginBtn.addEventListener("click", loginWithGoogle);
-    if (logoutBtn) logoutBtn.addEventListener("click", logout);
-
     if (window.__PAGE__ === "admin") {
+      const loginBtn = document.getElementById("btn-login");
+      const logoutBtn = document.getElementById("btn-logout");
+
+      if (loginBtn) loginBtn.addEventListener("click", loginWithGoogle);
+      if (logoutBtn) logoutBtn.addEventListener("click", logout);
+
       setupAdminAdd();
       checkSession();
+
+      // Real-time sync for admin table
+      supabase.channel('lizard_changes')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'lizards' }, payload => {
+          repaintAdminTable();
+        })
+        .subscribe();
     }
 
     if (window.__PAGE__ === "shop") {
       renderShop();
-      document.getElementById("filter-category")?.addEventListener("change", renderShop);
-      document.getElementById("filter-availability")?.addEventListener("change", renderShop);
+      supabase.channel('lizard_changes')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'lizards' }, payload => {
+          renderShop();
+        })
+        .subscribe();
     }
   });
-
-  // Real-time updates
-  supabase.channel('lizard_changes')
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'lizards' }, payload => {
-      repaintAdminTable();
-      renderShop();
-    })
-    .subscribe();
-
 })();
