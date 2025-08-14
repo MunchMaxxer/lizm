@@ -3,11 +3,11 @@
   // Supabase Config
   // =============================
   const SUPABASE_URL = "https://icqjefaxvuaxmlgyusgc.supabase.co";
-  const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImljcWplZmF4dnVheG1sZ3l1cmlneXVsZ2MiLCJyb2xlIjoiYW5vbiIsImlhdCI6MTc1NTEyMDI4MCwiZXhwIjoyMDcwNjk2MjgwfQ.prPCfB2CryD7dOb9LeRxU6obsCVXCTYTmTUMuWi97jg";
+  const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImljcWplZmF4dnVheG1sZ3l1c2djIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTUxMjAyODAsImV4cCI6MjA3MDY5NjI4MH0.prPCfB2CryD7dOb9LeRxU6obsCVXCTYTmTUMuWi97jg";
   const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
   // =============================
-  // Fetch & Manage Lizards
+  // Fetch Lizards
   // =============================
   async function getAll() {
     const { data, error } = await supabase.from("lizards").select("*").order("name");
@@ -18,6 +18,9 @@
     return data;
   }
 
+  // =============================
+  // Admin functions
+  // =============================
   async function addLizard(lizard) {
     const { error } = await supabase.from("lizards").insert([lizard]);
     if (error) alert("Error adding lizard: " + error.message);
@@ -33,10 +36,8 @@
     if (error) alert("Error deleting lizard: " + error.message);
   }
 
-  // =============================
-  // Admin Table
-  // =============================
   async function repaintAdminTable() {
+    if (window.__PAGE__ !== "admin") return;
     const list = await getAll();
     const tbody = document.querySelector("#lizardTable tbody");
     if (!tbody) return;
@@ -92,9 +93,6 @@
     });
   }
 
-  // =============================
-  // Admin Add Form
-  // =============================
   function setupAdminAdd() {
     const btn = document.getElementById("btnAdd");
     if (!btn) return;
@@ -117,7 +115,7 @@
   }
 
   // =============================
-  // Shop Page Display
+  // Shop Rendering
   // =============================
   async function renderShop() {
     if (window.__PAGE__ !== "shop") return;
@@ -127,15 +125,15 @@
     if (!products || !template) return;
 
     const lizards = await getAll();
-    products.innerHTML = ""; // clear
+    products.innerHTML = "";
 
     const categoryFilter = document.getElementById("filter-category");
     const availabilityFilter = document.getElementById("filter-availability");
 
     const filtered = lizards.filter(l => {
       let ok = true;
-      if (categoryFilter && categoryFilter.value && l.category !== categoryFilter.value) ok = false;
-      if (availabilityFilter && availabilityFilter.value) {
+      if (categoryFilter.value && l.category !== categoryFilter.value) ok = false;
+      if (availabilityFilter.value) {
         if (availabilityFilter.value === "in" && l.stock <= 0) ok = false;
         if (availabilityFilter.value === "out" && l.stock > 0) ok = false;
       }
@@ -144,7 +142,6 @@
 
     filtered.forEach(l => {
       const clone = template.content.cloneNode(true);
-      const card = clone.querySelector(".product-card");
       clone.querySelector("img").src = l.image || "assets/images/gecko.svg";
       clone.querySelector("img").alt = l.name;
       clone.querySelector(".name").textContent = l.name;
@@ -154,10 +151,6 @@
       clone.querySelector(".stock").textContent = `Stock: ${l.stock}`;
       products.appendChild(clone);
     });
-
-    // Re-filter when filters change
-    if (categoryFilter) categoryFilter.addEventListener("change", renderShop);
-    if (availabilityFilter) availabilityFilter.addEventListener("change", renderShop);
   }
 
   // =============================
@@ -179,16 +172,16 @@
     const status = document.getElementById("adm-status");
 
     if (session && session.user.email === "fileppcat@gmail.com") {
-      loginSection.style.display = "none";
-      adminBody.style.display = "block";
-      logoutBtn.style.display = "inline-flex";
-      status.textContent = "";
+      loginSection?.style.display = "none";
+      adminBody?.style.display = "block";
+      logoutBtn?.style.display = "inline-flex";
+      status && (status.textContent = "");
       repaintAdminTable();
     } else {
-      loginSection.style.display = "block";
-      adminBody.style.display = "none";
-      logoutBtn.style.display = "none";
-      if (session) status.textContent = "Unauthorized user";
+      loginSection?.style.display = "block";
+      adminBody?.style.display = "none";
+      logoutBtn?.style.display = "none";
+      if (session) status && (status.textContent = "Unauthorized user");
     }
   }
 
@@ -207,9 +200,16 @@
     if (loginBtn) loginBtn.addEventListener("click", loginWithGoogle);
     if (logoutBtn) logoutBtn.addEventListener("click", logout);
 
-    setupAdminAdd();
-    checkSession();
-    renderShop();
+    if (window.__PAGE__ === "admin") {
+      setupAdminAdd();
+      checkSession();
+    }
+
+    if (window.__PAGE__ === "shop") {
+      renderShop();
+      document.getElementById("filter-category")?.addEventListener("change", renderShop);
+      document.getElementById("filter-availability")?.addEventListener("change", renderShop);
+    }
   });
 
   // Real-time updates
