@@ -27,7 +27,6 @@
   <div class="container grid" style="grid-template-columns: .9fr 2fr; align-items:start">
     <aside class="card reveal">
       <h2>Filters</h2>
-
       <label class="label" for="filter-category">Category</label>
       <select id="filter-category">
         <option value="">All</option>
@@ -57,6 +56,18 @@
   </div>
 </main>
 
+<!-- Lizard Card Template -->
+<template id="lizard-template">
+  <div class="card product-card reveal">
+    <img src="" alt="">
+    <h3 class="name"></h3>
+    <small class="scientific"></small>
+    <p class="desc"></p>
+    <p class="price"></p>
+    <p class="stock"></p>
+  </div>
+</template>
+
 <!-- Purchase modal -->
 <div id="purchase-modal" class="modal" aria-hidden="true" role="dialog" aria-labelledby="pm-title" aria-describedby="pm-desc" style="display:none">
   <h3 id="pm-title">Special Delivery breakdown</h3>
@@ -80,10 +91,9 @@
 <script>
   window.__PAGE__ = "shop";
 </script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 <script src="scripts/app.js"></script>
 <script>
-  // Confirm modal redirects to payment page
+  // Override confirm to redirect to payment page
   document.getElementById("pm-confirm")?.addEventListener("click", () => {
     window.location.href = "https://gl.me/u/zQHlRkWldrqc";
     document.getElementById("purchase-modal").style.display = "none";
