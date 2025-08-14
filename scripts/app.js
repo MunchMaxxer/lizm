@@ -60,7 +60,7 @@
       btn.addEventListener("click", async e => {
         const id = e.currentTarget.getAttribute("data-inc");
         const item = (await getAll()).find(x => x.id === id);
-        if (item) { await updateLizard(id, { stock: item.stock + 1 }); repaintAdminTable(); }
+        if (item) { await updateLizard(id, { stock: item.stock + 1 }); repaintAdminTable(); repaintShop(); }
       });
     });
 
@@ -68,14 +68,14 @@
       btn.addEventListener("click", async e => {
         const id = e.currentTarget.getAttribute("data-dec");
         const item = (await getAll()).find(x => x.id === id);
-        if (item && item.stock > 0) { await updateLizard(id, { stock: item.stock - 1 }); repaintAdminTable(); }
+        if (item && item.stock > 0) { await updateLizard(id, { stock: item.stock - 1 }); repaintAdminTable(); repaintShop(); }
       });
     });
 
     tbody.querySelectorAll("[data-del]").forEach(btn => {
       btn.addEventListener("click", async e => {
         const id = e.currentTarget.getAttribute("data-del");
-        if (confirm("Delete this lizard?")) { await deleteLizard(id); repaintAdminTable(); }
+        if (confirm("Delete this lizard?")) { await deleteLizard(id); repaintAdminTable(); repaintShop(); }
       });
     });
   }
@@ -95,10 +95,10 @@
       const price = parseFloat(document.getElementById("price").value) || 0;
       const stock = parseInt(document.getElementById("stock").value) || 0;
       const img = document.getElementById("img").value.trim() || "assets/images/gecko.svg";
-      const description = document.getElementById("description").value.trim();
+      const desc = document.getElementById("desc").value.trim();
       const id = nm.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
 
-      await addLizard({ id, name: nm, scientific: sci, category: cat, price, stock, image: img, description });
+      await addLizard({ id, name: nm, scientific: sci, category: cat, price, stock, image: img, desc });
       await repaintAdminTable();
 
       ["name","sci","cat","price","stock","img","desc"].forEach(id => document.getElementById(id).value = "");
@@ -160,6 +160,7 @@
         <div class="muted"><small>${l.scientific || ""}</small></div>
         <div class="price">$${l.price.toFixed(2)}</div>
         <div class="stock">Stock: ${l.stock}</div>
+        <div class="desc">${l.desc || ""}</div>
       `;
       grid.appendChild(card);
     });
