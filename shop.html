@@ -27,14 +27,14 @@
   <div class="container grid" style="grid-template-columns: .9fr 2fr; align-items:start">
     <aside class="card reveal">
       <h2>Filters</h2>
+
       <label class="label" for="filter-category">Category</label>
       <select id="filter-category">
-  <option value="">All</option>
-  <option value="Gecko">Gecko</option>
-  <option value="Lizard">Lizard</option>
-  <option value="Skink">Skink</option>
-</select>
-
+        <option value="">All</option>
+        <option value="Gecko">Gecko</option>
+        <option value="Lizard">Lizard</option>
+        <option value="Skink">Skink</option>
+      </select>
 
       <label class="label" for="filter-availability">Availability</label>
       <select id="filter-availability">
@@ -80,9 +80,10 @@
 <script>
   window.__PAGE__ = "shop";
 </script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 <script src="scripts/app.js"></script>
 <script>
-  // Override confirm to redirect to payment page
+  // Confirm modal redirects to payment page
   document.getElementById("pm-confirm")?.addEventListener("click", () => {
     window.location.href = "https://gl.me/u/zQHlRkWldrqc";
     document.getElementById("purchase-modal").style.display = "none";
